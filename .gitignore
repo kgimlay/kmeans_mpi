@@ -1,0 +1,9 @@
+# ignore system files
+*.DS_Store
+
+# ignore compiled files
+*.o
+kmeans
+
+# ignore output files
+*.txt
