@@ -39,10 +39,11 @@ void primeCentroid(Centroid *centroidList, int listSize)
   for(int centrIdx = 0; centrIdx < listSize; centrIdx++)
   {
     // store current centroid pos into previous
-    free(centroidList[centrIdx].prevCoords);
-    centroidList[centrIdx].prevCoords = centroidList[centrIdx].coords;
-    centroidList[centrIdx].coords = (double *)calloc(centroidList[centrIdx].dim,
-                                  sizeof(double));
+    for(int dimIdx = 0; dimIdx < centroidList[centrIdx].dim; dimIdx++)
+    {
+      centroidList[centrIdx].prevCoords[dimIdx] = centroidList[centrIdx].coords[dimIdx];
+      centroidList[centrIdx].coords[centrIdx] = 0.0;
+    }
 
     // reset size for average calculation
     centroidList[centrIdx].size = 0;

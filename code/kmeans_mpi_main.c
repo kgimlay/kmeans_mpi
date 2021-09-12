@@ -131,10 +131,31 @@ int main(int argc, char *argv[])
     // save results to files
 
 
+    // free memory
+    // dataset
+    for(int i = 0; i < dataSetSize; i++)
+    {
+      free(dataset[i]);
+    }
+    free(dataset);
+
+    // dataPoints
+    for(int i = 0; i < dataSetSize; i++)  // data points
+    {
+      free(dataPoints[i].coords);
+    }
+    free(dataPoints);
+
+    // centroids
+    for(int i = 0; i < numClusters; i++)  // centroids
+    {
+      free(centroids[i].coords);
+      free(centroids[i].prevCoords);
+    }
+    free(centroids);
+
   } /* end else from command line arg parsing */
 
   // free memory
   free(algo_select);
-  // dataPoints
-  // centroids
 }
