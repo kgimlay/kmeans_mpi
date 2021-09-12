@@ -3,6 +3,7 @@
 #include "command_line_utils.h"
 
 // strings
+char *maxIterFlag = "-i";
 char *numCoresFlag = "-c";
 char *helpFlag = "-h";
 char *manFlag = "-man";
@@ -17,9 +18,10 @@ char *helpStr = "\n"
 "   comma-delimited                 (a basic csv, not UTF-8 csv, etc.)\n"
 " <size of dataset>\n"
 " <dimensionality of dataset>\n"
-" <number of clusters>\n"
+" <number of clusters>              (less than data set size)\n"
 "\nOptional:\n"
-" %s <number of cores>             (max: number of cores on machine)\n"
+" %s <max iterations>               (maximum number of iterations to allow)\n"
+" %s <number of cores>              (max: number of cores on machine)\n"
 " %s                                (help. prints valid command line args)\n"
 " %s                                (prints info on program and how to use)\n"
 "============================================================================\n"
@@ -43,7 +45,7 @@ bool parseValidate_required(int argc, char *argv[], ALGO_CODE *algo,
   char algo_buff[MAX_STR_BUFF_SIZE];
 
   // get data from argv
-  if (argc == 6) {
+  if (argc >= 6) {
     sscanf(argv[1], "%s", algo_buff);
     sscanf(argv[2], "%s", dataFilePath_buff);
     sscanf(argv[3], "%d", dataSetSize);
@@ -62,15 +64,19 @@ bool parseValidate_required(int argc, char *argv[], ALGO_CODE *algo,
     return false;
   }
   if (*dataSetSize < 1) {
-    printf("%s\n", "Dataset size must be at least 1");
+    printf("Dataset size must be at least 1\n");
     return false;
   }
   if (*dataDimensionality < 1) {
-    printf("%s\n", "Data dimensionality must be at least 1");
+    printf("Data dimensionality must be at least 1\n");
     return false;
   }
   if (*numClusters < 1) {
-    printf("%s\n", "Number of clusters must be at least 1");
+    printf("Number of clusters must be at least 1\n");
+    return false;
+  }
+  if (*numClusters > *dataSetSize) {
+    printf("Number of clusters must be at most the size of the data set\n");
     return false;
   }
 
@@ -82,35 +88,45 @@ bool parseValidate_required(int argc, char *argv[], ALGO_CODE *algo,
 /*
 
 */
-bool parseValidate_optional(int argc, char *argv[], int *numCores)
+bool parseValidate_optional(int argc, char *argv[], int *numIterations, int *numCores)
 {
-  // operation variables
-  int tempNumCores = 0;
-
   // parse and validate everything after required
-  for (int i = 6; i < argc; i++) {
+  for (int i = 6; i < argc; i += 2) {
     // number of cores
-    if (!strcmp(argv[i], numCoresFlag) && ++i < argc) {
-      sscanf(argv[++i], "%d", &tempNumCores);
+    if (!strcmp(argv[i], numCoresFlag) && i+1 < argc)
+    {
+      sscanf(argv[i + 1], "%d", numCores);
 
       // number of cores must be at least 1
-      if (tempNumCores < 1) {
-        printf("%s\n", "Number of cores must be at least 1!");
+      if (*numCores < 1)
+      {
+        printf("Number of cores must be at least 1!\n");
         return false;
       }
-      else if (tempNumCores <= MAX_CORES) {
-        numCores = &tempNumCores;
-      }
       // number of cores cannot exceed number in machine
-      else {
-        printf("%s\n", "Number of cores input exceeds the max of the machine!");
+      else if(*numCores > MAX_CORES)
+      {
+        printf("Number of cores input exceeds the max of the machine!\n");
+        return false;
+      }
+    }
+
+    // number of iterations
+    else if (!strcmp(argv[i], maxIterFlag) && i+1 < argc)
+    {
+      sscanf(argv[i + 1], "%d", numIterations);
+
+      // number of iterations must be at least 1
+      if (*numIterations < 1)
+      {
+        printf("Number of iterations must be at least 1!\n");
         return false;
       }
     }
 
     // catch all else
     else {
-      printf("%s\n", " is not a valid flag!");
+      printf("%s is not a valid flag!\n", argv[i]);
       return false;
     }
   }
@@ -126,13 +142,13 @@ bool parseValidate_optional(int argc, char *argv[], int *numCores)
 */
 bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
   char *dataFilePath_buff, int *dataSetSize, int *dataDimensionality,
-  int *numClusters, int *numCores)
+  int *numClusters, int *numIterations, int *numCores)
 {
   // first check for help flag or info flag
   for (int i = 0; i < argc; i++) {
     // help flag
     if (!strcmp(argv[i], helpFlag)) {
-      printf(helpStr, MAX_STR_BUFF_SIZE, numCoresFlag, helpFlag, manFlag);
+      printf(helpStr, MAX_STR_BUFF_SIZE, maxIterFlag, numCoresFlag, helpFlag, manFlag);
       return false;
     }
     // manual flag
@@ -150,7 +166,7 @@ bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
   }
 
   // parse optional arguments
-  if (!parseValidate_optional(argc, argv, numCores))
+  if (!parseValidate_optional(argc, argv, numIterations, numCores))
   {
     return false;
   }

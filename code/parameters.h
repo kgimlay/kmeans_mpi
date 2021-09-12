@@ -16,6 +16,9 @@
 // take care not to exceed machine limits
 #define MAX_CORES 8
 
+// maximum number of iterations to allow
+#define DEFAULT_MAX_ITERATIONS 10000
+
 // maximum size of string buffers
 #define MAX_STR_BUFF_SIZE 128
 

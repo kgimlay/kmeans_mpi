@@ -14,20 +14,21 @@ int main(int argc, char *argv[])
   int dataDimensionality = 0;
   int numClusters = 0;
   int numCores = MAX_CORES;
-  int maxIterations = 1000;    // todo: add to command line as optional argument
+  int maxIterations = DEFAULT_MAX_ITERATIONS;
   Point *dataPoints;
   Centroid *centroids;
   double **dataset;
 
   // get command line arguments
   if (!parse_commandline(argc, argv, algo_select, dataFilePath_buff, &dataSetSize,
-    &dataDimensionality, &numClusters, &numCores))
+    &dataDimensionality, &numClusters, &maxIterations, &numCores))
   {
     printf("%s\n", "Terminating program.");
   }
   // command line parsing successful, continue
   else
   {
+    printf("Num Iterations: %d, Num Cores: %d\n", maxIterations, numCores);
     // allocate data
     centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
     for(int i = 0; i < numClusters; i++)  // centroids
