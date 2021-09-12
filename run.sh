@@ -1,1 +1,1 @@
-./kmeans LINEAR_LLOYD ./datasets/3_clust_set_1.csv 50 2 3
+./kmeans LINEAR_LLOYD ./datasets/M.csv 500 50 2

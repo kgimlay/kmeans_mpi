@@ -42,7 +42,7 @@ void primeCentroid(Centroid *centroidList, int listSize)
     for(int dimIdx = 0; dimIdx < centroidList[centrIdx].dim; dimIdx++)
     {
       centroidList[centrIdx].prevCoords[dimIdx] = centroidList[centrIdx].coords[dimIdx];
-      centroidList[centrIdx].coords[centrIdx] = 0.0;
+      centroidList[centrIdx].coords[dimIdx] = 0.0;
     }
 
     // reset size for average calculation
@@ -170,4 +170,6 @@ void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
   {
     printf("Convergence not reached in %d iterations\n", iterationCntr);
   }
+  // convergence reached
+  printf("Convergence in %d iterations\n", iterationCntr);
 }

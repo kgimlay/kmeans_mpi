@@ -10,6 +10,7 @@
 #include "parameters.h"
 #include "lin_lloyd.h"
 #include "command_line_utils.h"
+#include "data_utils.h"
 
 
 #endif
