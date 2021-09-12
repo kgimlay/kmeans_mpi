@@ -2,7 +2,7 @@
 
 CC = mpicc
 EXECUTABLE = kmeans
-FLAGS = -O3 -Wall -std=c99 -pedantic
+FLAGS = -O3 -Wall -std=c99 -pedantic -g
 CFLAGS = -c
 CODE_DIR = code
 OBJ_DIR = objects
@@ -19,14 +19,14 @@ file_utils.o: $(CODE_DIR)/file_utils.c $(CODE_DIR)/file_utils.h
 lin_lloyd.o: $(CODE_DIR)/lin_lloyd.c $(CODE_DIR)/lin_lloyd.h $(CODE_DIR)/parameters.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)/lin_lloyd.c -o $(OBJ_DIR)/lin_lloyd.o
 
-command_line_utils.o: $(CODE_DIR)/command_line_utils.c $(CODE_DIR)/command_line_utils.h $(CODE_DIR)/helper.h $(CODE_DIR)/parameters.h
+command_line_utils.o: $(CODE_DIR)/command_line_utils.c $(CODE_DIR)/command_line_utils.h $(CODE_DIR)/utils.h $(CODE_DIR)/parameters.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)/command_line_utils.c -o $(OBJ_DIR)/command_line_utils.o
 
-helper.o: $(CODE_DIR)/helper.c $(CODE_DIR)/helper.h
-	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)/helper.c -o $(OBJ_DIR)/helper.o
+utils.o: $(CODE_DIR)/utils.c $(CODE_DIR)/utils.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)/utils.c -o $(OBJ_DIR)/utils.o
 
-$(EXECUTABLE): kmeans_mpi_main.o file_utils.o lin_lloyd.o command_line_utils.o helper.o
-	$(CC) $(FLAGS) -o $(EXECUTABLE) $(OBJ_DIR)/kmeans_mpi_main.o $(OBJ_DIR)/file_utils.o $(OBJ_DIR)/lin_lloyd.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/command_line_utils.o
+$(EXECUTABLE): kmeans_mpi_main.o file_utils.o lin_lloyd.o command_line_utils.o utils.o
+	$(CC) $(FLAGS) -o $(EXECUTABLE) $(OBJ_DIR)/kmeans_mpi_main.o $(OBJ_DIR)/file_utils.o $(OBJ_DIR)/lin_lloyd.o $(OBJ_DIR)/utils.o $(OBJ_DIR)/command_line_utils.o
 
 
 clean:

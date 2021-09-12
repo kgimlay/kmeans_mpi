@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "parameters.h"
-#include "helper.h"
+#include "utils.h"
 
 // funciton prototypes
 bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,

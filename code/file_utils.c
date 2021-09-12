@@ -2,54 +2,46 @@
 
 #include "file_utils.h"
 
-// Courtesy of Dr. Mike Gowanlock
-int importDataset(char * fname, int DIM, int N, double ** dataset)
-{
-    FILE *fp = fopen(fname, "r");
-
-    if (!fp) {
-        printf("Unable to open file\n");
-        return(1);
-    }
-
-    char buf[4096];
-    int rowCnt = 0;
-    int colCnt = 0;
-    while (fgets(buf, 4096, fp) && rowCnt<N) {
-        colCnt = 0;
-
-        char *field = strtok(buf, ",");
-        double tmp;
-        sscanf(field,"%lf",&tmp);
-        printf("%.4f\n", tmp);
-        dataset[rowCnt][colCnt]=tmp;
-
-
-        while (field) {
-          colCnt++;
-          field = strtok(NULL, ",");
-
-          if (field!=NULL)
-          {
-          double tmp;
-          sscanf(field,"%lf",&tmp);
-          printf("%.4f\n", tmp);
-          dataset[rowCnt][colCnt]=tmp;
-          }
-
-        }
-        rowCnt++;
-    }
-
-    fclose(fp);
-    return 0;
-}
-
 
 /*
 
 */
-bool importDataPoints()
+FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fileName)
 {
-  return true;
+  // operation variables
+  char lineBuffer[FILE_LINE_BUFF_SIZE];
+  int rowCnt;
+  int colCnt;
+  FILE *filePtr;
+  char *elemToken;
+  char *dataDelimiter = ",";
+
+  // open file
+  filePtr = fopen(fileName, "r");
+  if(!filePtr) // file could not be opened
+  {
+    return FILE_OPEN_ERR;
+  }
+
+  // loop over lines of file
+  for(rowCnt = 0; rowCnt < dataSize; rowCnt++)
+  {
+    // get line and store in buffer
+    if(fgets(lineBuffer, FILE_LINE_BUFF_SIZE, filePtr) == NULL)
+    {
+      return FILE_LINE_ERR;
+    }
+
+    // tokenize line to get data entries
+    elemToken = strtok(lineBuffer, dataDelimiter);
+    for(colCnt = 0; colCnt < dimension && elemToken != NULL; colCnt++)
+    {
+      dataset[rowCnt][colCnt] = atof(elemToken); // figure out work around for return 0.0 if can't parse
+      elemToken = strtok(NULL, dataDelimiter);
+    }
+
+  }
+
+  // file import ok
+  return FILE_OK;
 }
