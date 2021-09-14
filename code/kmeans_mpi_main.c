@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
   // operation variables
   ALGO_CODE *algo_select = (ALGO_CODE *)malloc(sizeof(ALGO_CODE));
   char dataFilePath_buff[MAX_STR_BUFF_SIZE];
+  char outputFilePath_buff[MAX_STR_BUFF_SIZE];
   int dataSetSize = 0;
   int dataDimensionality = 0;
   int numClusters = 0;
@@ -21,14 +22,13 @@ int main(int argc, char *argv[])
 
   // get command line arguments
   if (!parse_commandline(argc, argv, algo_select, dataFilePath_buff, &dataSetSize,
-    &dataDimensionality, &numClusters, &maxIterations, &numCores))
+    &dataDimensionality, &numClusters, &maxIterations, &numCores, outputFilePath_buff))
   {
     printf("%s\n", "Terminating program.");
   }
   // command line parsing successful, continue
   else
   {
-    printf("Num Iterations: %d, Num Cores: %d\n", maxIterations, numCores);
     // allocate data
     centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
     for(int i = 0; i < numClusters; i++)  // centroids
@@ -54,82 +54,48 @@ int main(int argc, char *argv[])
       dataset[i] = (double *)malloc(sizeof(double) * dataDimensionality);
     }
 
-    importDataset(dataset, dataDimensionality, dataSetSize, dataFilePath_buff);
-
-    // fill data points
-    for(int i = 0; i < dataSetSize; i++)
+    // import dataset from file
+    if(importDataset(dataset, dataDimensionality, dataSetSize, dataFilePath_buff) != FILE_OK)
     {
-      for(int j = 0; j < dataDimensionality; j++)
+      printf("File could not be read!\n");
+    }
+    else
+    {
+      // fill data points
+      for(int i = 0; i < dataSetSize; i++)
       {
-        dataPoints[i].coords[j] = dataset[i][j];
+        for(int j = 0; j < dataDimensionality; j++)
+        {
+          dataPoints[i].coords[j] = dataset[i][j];
+        }
+      }
+
+      // select starting points for centroids
+      for(int i = 0; i < numClusters; i++)
+      {
+        for(int j = 0; j < dataDimensionality; j++)
+        {
+          // set the n centroid locations the first n data points
+          centroids[i].coords[j] = dataPoints[i].coords[j];
+        }
+      }
+
+      // start the algorithm selected
+      switch (*algo_select) {
+        case LINEAR_LLOYD:
+          run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters, maxIterations);
+          break;
+
+        default:
+          break;
+      }
+
+      // save results to files
+      if(exportCsv(dataset, dataSetSize, dataDimensionality, outputFilePath_buff) != FILE_OK)
+      {
+        printf("File could not be written!\n");
       }
     }
-
-    #if VERBOSE==1
-    printf("Dataset: \n");
-    for (int i=0; i<dataSetSize; i++)
-    {
-      for (int j=0; j<dataDimensionality; j++)
-      {
-          printf("%f, ", dataPoints[i].coords[j]);
-      }
-      printf("\n");
-    }
-    #endif /* end VERB==1 */
-
-    // select starting points for centroids
-    for(int i = 0; i < numClusters; i++)
-    {
-      for(int j = 0; j < dataDimensionality; j++)
-      {
-        // set the n centroid locations the first n data points
-        centroids[i].coords[j] = dataPoints[i].coords[j];
-      }
-    }
-
-    #if VERBOSE==1
-    printf("Centroids: \n");
-    for (int i=0; i<numClusters; i++)
-    {
-      for (int j=0; j<dataDimensionality; j++)
-      {
-          printf("%f, ", centroids[i].coords[j]);
-      }
-      printf("\n");
-    }
-    #endif /* end VERB==1 */
-
-    // start the algorithm selected
-    switch (*algo_select) {
-      case LINEAR_LLOYD:
-        run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters, maxIterations);
-        break;
-
-      default:
-        break;
-    }
-
-    // print results
-    #if VERBOSE==1
-    printf("\n\nPoint ID  |  Cluster ID\n");
-    for (int i = 0; i < dataSetSize; i++)
-    {
-      printf("   %d     %d\n", dataPoints[i].id, dataPoints[i].centroid->id);
-    }
-    printf("\nCluster ID  |  Coords\n");
-    for (int i = 0; i < numClusters; i++)
-    {
-      printf("     %d    ", centroids[i].id);
-      for (int j = 0; j < centroids[i].dim; j++)
-      {
-        printf("%.3f, ", centroids[i].coords[j]);
-      }
-      printf("\n");
-    }
-    #endif /* end VERB==1 */
-
-    // save results to files
-
 
     // free memory
     // dataset

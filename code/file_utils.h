@@ -17,6 +17,8 @@
 // max buffer size for reading file
 #define FILE_LINE_BUFF_SIZE 4096
 
+#define POINT_ASSIGNMENT_CSV "point_assignment.csv"
+
 // enums
 
 // return codes for file operations
@@ -29,6 +31,7 @@ typedef enum
 
 // function prototypes
 FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fileName);
+FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName);
 
 
 #endif

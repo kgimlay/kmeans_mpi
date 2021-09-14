@@ -45,3 +45,48 @@ FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fil
   // file import ok
   return FILE_OK;
 }
+
+
+/*
+
+*/
+FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName)
+{
+  // operatin variables
+  int rowCnt;
+  int colCnt;
+  FILE *filePtr;
+
+  // open filePtr
+  filePtr = fopen(fileName, "w");
+  if(!filePtr) // file could not be opened
+  {
+    return FILE_OPEN_ERR;
+  }
+
+  // loop over rows of output set and print to the file
+  for(rowCnt = 0; rowCnt < numRow; rowCnt++)
+  {
+    for(colCnt = 0; colCnt < numCol; colCnt++)
+    {
+      fprintf(filePtr, "%.14f", outset[rowCnt][colCnt]);
+      if(colCnt != numCol - 1)
+      {
+        fprintf(filePtr, ",");
+      }
+    }
+    fprintf(filePtr, "\r\n");
+  }
+
+  // file export ok
+  return FILE_OK;
+}
+
+
+/*
+
+*/
+FILE_CODE exportResults(char *outDir)
+{
+
+}

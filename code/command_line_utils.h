@@ -13,7 +13,7 @@
 // funciton prototypes
 bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
   char *dataFilePath_buff, int *dataSetSize, int *dataDimensionality,
-  int *numClusters, int *numIterations, int *numCores);
+  int *numClusters, int *numIterations, int *numCores, char *outputFilePath_buff);
 
 
 #endif

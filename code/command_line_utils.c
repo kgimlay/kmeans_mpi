@@ -14,11 +14,12 @@ char *helpStr = "\n"
 "Required:\n"
 " <algorithm>\n"
 "   LINLOYDS, LINLOYDS_MPI, YINYANG, YINYANG_MPI\n"
-" <data filepath>                   (max: %d characters\n"
+" <data filepath>                   (max: %d characters)\n"
 "   comma-delimited                 (a basic csv, not UTF-8 csv, etc.)\n"
 " <size of dataset>\n"
 " <dimensionality of dataset>\n"
 " <number of clusters>              (less than data set size)\n"
+" <output filepath>                 (max: %d characters)"
 "\nOptional:\n"
 " %s <max iterations>               (maximum number of iterations to allow)\n"
 " %s <number of cores>              (max: number of cores on machine)\n"
@@ -39,22 +40,23 @@ char *manStr = "\n"
 */
 bool parseValidate_required(int argc, char *argv[], ALGO_CODE *algo,
   char *dataFilePath_buff, int *dataSetSize, int *dataDimensionality,
-  int *numClusters)
+  int *numClusters, char *outputFilePath_buff)
 {
   // operation variables
   char algo_buff[MAX_STR_BUFF_SIZE];
 
   // get data from argv
-  if (argc >= 6) {
+  if (argc >= 7) {
     sscanf(argv[1], "%s", algo_buff);
     sscanf(argv[2], "%s", dataFilePath_buff);
     sscanf(argv[3], "%d", dataSetSize);
     sscanf(argv[4], "%d", dataDimensionality);
     sscanf(argv[5], "%d", numClusters);
+    sscanf(argv[6], "%s", outputFilePath_buff);
   }
   else {
-    printf("%s\n", "Incorrect number of arguments. Please run again with -h for"
-    " help.");
+    printf("%s\n", "\nIncorrect number of arguments. Please run again with -h for"
+    " help.\n");
     return false;
   }
 
@@ -91,7 +93,7 @@ bool parseValidate_required(int argc, char *argv[], ALGO_CODE *algo,
 bool parseValidate_optional(int argc, char *argv[], int *numIterations, int *numCores)
 {
   // parse and validate everything after required
-  for (int i = 6; i < argc; i += 2) {
+  for (int i = 7; i < argc; i += 2) {
     // number of cores
     if (!strcmp(argv[i], numCoresFlag) && i+1 < argc)
     {
@@ -142,13 +144,14 @@ bool parseValidate_optional(int argc, char *argv[], int *numIterations, int *num
 */
 bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
   char *dataFilePath_buff, int *dataSetSize, int *dataDimensionality,
-  int *numClusters, int *numIterations, int *numCores)
+  int *numClusters, int *numIterations, int *numCores, char *outputFilePath_buff)
 {
   // first check for help flag or info flag
   for (int i = 0; i < argc; i++) {
     // help flag
     if (!strcmp(argv[i], helpFlag)) {
-      printf(helpStr, MAX_STR_BUFF_SIZE, maxIterFlag, numCoresFlag, helpFlag, manFlag);
+      printf(helpStr, MAX_STR_BUFF_SIZE, MAX_STR_BUFF_SIZE, maxIterFlag,
+              numCoresFlag, helpFlag, manFlag);
       return false;
     }
     // manual flag
@@ -160,7 +163,7 @@ bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
 
   // parse required arguments
   if (!parseValidate_required(argc, argv, algo, dataFilePath_buff,
-    dataSetSize, dataDimensionality, numClusters))
+    dataSetSize, dataDimensionality, numClusters, outputFilePath_buff))
   {
     return false;
   }
