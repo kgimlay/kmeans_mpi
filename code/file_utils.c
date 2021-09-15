@@ -86,7 +86,37 @@ FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName)
 /*
 
 */
-FILE_CODE exportResults(char *outDir)
+FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *centroids,
+  int numCentroids)
 {
-  return FILE_OK;
+  // operation variables
+  double **assTable = (double **)malloc(sizeof(double) * size);
+  double **clustTable = (double **)malloc(sizeof(double) * numCentroids);
+  char *outClustAss = (char *)malloc(sizeof(char) * MAX_STR_BUFF_SIZE);
+  strcpy(outClustAss, outDir);
+  strncat(outClustAss, "point_assignment.csv", MAX_STR_BUFF_SIZE);
+  char *outCentr = (char *)malloc(sizeof(char) * MAX_STR_BUFF_SIZE);
+  strcpy(outCentr, outDir);
+  strncat(outCentr, "clusters.csv", MAX_STR_BUFF_SIZE);
+
+  // allocate point assignment and fill
+  for(int i = 0; i < size; i++)
+  {
+    assTable[i] = (double *)malloc(sizeof(double) * 1);
+    *assTable[i] = (double)(pointList[i].centroid->id);
+  }
+  // send to export
+  exportCsv(assTable, size, 1, outClustAss);
+
+  // allocate clusters and fill
+  for(int i = 0; i < numCentroids; i++)
+  {
+    clustTable[i] = (double *)malloc(sizeof(double) * centroids[0].dim);
+    for(int j = 0; j < centroids[0].dim; j++)
+    {
+      clustTable[i][j] = pointList[i].centroid->coords[j];
+    }
+  }
+  // send to export
+  exportCsv(clustTable, numCentroids, centroids[0].dim, outCentr);
 }

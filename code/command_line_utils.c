@@ -119,9 +119,9 @@ bool parseValidate_optional(int argc, char *argv[], int *numIterations, int *num
       sscanf(argv[i + 1], "%d", numIterations);
 
       // number of iterations must be at least 1
-      if (*numIterations < 1)
+      if (*numIterations < 0)
       {
-        printf("Number of iterations must be at least 1!\n");
+        printf("Number of iterations must be at least 0!\n");
         return false;
       }
     }

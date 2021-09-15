@@ -7,3 +7,4 @@ kmeans
 
 # ignore output files
 *.txt
+*.csv

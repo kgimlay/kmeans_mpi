@@ -10,6 +10,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdbool.h>
+#include "data_utils.h"
+#include "parameters.h"
 
 // defines
 
@@ -32,6 +34,7 @@ typedef enum
 // function prototypes
 FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fileName);
 FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName);
-
+FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *centroids,
+  int numCentroids);
 
 #endif

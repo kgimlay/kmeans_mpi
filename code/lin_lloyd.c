@@ -124,12 +124,32 @@ void updateCentroids(Point *pointList, int pointListSize,
 /*
 
 */
+void startCentroids(Centroid *centrList, int centrListSize,
+                    Point *pointList, int pointListSize)
+{
+  // assign points to 'random' centroids
+  for(int pointIdx = 0; pointIdx < pointListSize; pointIdx++)
+  {
+    pointList[pointIdx].centroid = &centrList[pointIdx%centrListSize];
+  }
+
+  // set centroid initial locations
+  updateCentroids(pointList, pointListSize, centrList, centrListSize);
+}
+
+
+/*
+
+*/
 void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
                     int centrList_size, int maxIter)
 {
   // operation variables
   int iterationCntr;
   bool convergenceFlag = false;
+
+  // select starting points for centroids
+  startCentroids(centrList, centrList_size, pointList, pointList_size);
 
   // while no convergence and not at max iterations
   for(iterationCntr = 0; iterationCntr < maxIter && !convergenceFlag; iterationCntr++)
@@ -156,7 +176,8 @@ void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
     {
       for(int dimIdx = 0; dimIdx < centrList[centrIdx].dim; dimIdx++)
       {
-        if(centrList[centrIdx].coords[dimIdx] != centrList[centrIdx].prevCoords[dimIdx])
+        if(centrList[centrIdx].coords[dimIdx] != centrList[centrIdx].prevCoords[dimIdx]
+            && !isnan(centrList[centrIdx].coords[dimIdx]))
         {
           convergenceFlag = false;
         }

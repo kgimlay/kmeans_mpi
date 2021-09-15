@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
 
   // get command line arguments
   if (!parse_commandline(argc, argv, algo_select, dataFilePath_buff, &dataSetSize,
-    &dataDimensionality, &numClusters, &maxIterations, &numCores, outputFilePath_buff))
+    &dataDimensionality, &numClusters, &maxIterations, &numCores,
+    outputFilePath_buff))
   {
     printf("%s\n", "Terminating program.");
   }
@@ -37,7 +38,8 @@ int main(int argc, char *argv[])
     {
       dataset[i] = (double *)malloc(sizeof(double) * dataDimensionality);
     }
-    if(importDataset(dataset, dataDimensionality, dataSetSize, dataFilePath_buff) != FILE_OK)
+    if(importDataset(dataset, dataDimensionality, dataSetSize, dataFilePath_buff)
+        != FILE_OK)
     {
       printf("File could not be read!\n");
     }
@@ -49,13 +51,11 @@ int main(int argc, char *argv[])
       centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
       makeCentroids(centroids, numClusters, dataDimensionality);
 
-      // select starting points for centroids
-      startCentroids(centroids, numClusters, dataPoints, dataSetSize, dataDimensionality);
-
       // start the algorithm selected
       switch (*algo_select) {
         case LINEAR_LLOYD:
-          run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters, maxIterations);
+          run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
+                          maxIterations);
           break;
 
         default:
@@ -63,7 +63,9 @@ int main(int argc, char *argv[])
       }
 
       // save results to files
-      if(exportCsv(dataset, dataSetSize, dataDimensionality, outputFilePath_buff) != FILE_OK)
+      if(exportResults(outputFilePath_buff, dataPoints, dataSetSize, centroids,
+          numClusters)
+          != FILE_OK)
       {
         printf("File could not be written!\n");
       }

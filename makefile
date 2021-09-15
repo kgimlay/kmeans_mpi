@@ -16,7 +16,7 @@ kmeans_mpi_main.o: $(CODE_DIR)kmeans_mpi_main.c $(CODE_DIR)kmeans_mpi_main.h $(C
 utils.o: $(CODE_DIR)utils.c $(CODE_DIR)utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)utils.c -o $(OBJ_DIR)utils.o
 
-file_utils.o: $(CODE_DIR)file_utils.c $(CODE_DIR)file_utils.h
+file_utils.o: $(CODE_DIR)file_utils.c $(CODE_DIR)file_utils.h $(CODE_DIR)data_utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)file_utils.c -o $(OBJ_DIR)file_utils.o
 
 data_utils.o: $(CODE_DIR)data_utils.c $(CODE_DIR)data_utils.h

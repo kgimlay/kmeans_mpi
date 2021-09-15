@@ -71,17 +71,3 @@ void freeDataset(double **data, int num)
   }
   free(data);
 }
-
-
-void startCentroids(Centroid *centroidList, int numCentroid,
-                    Point *pointList, int numPoint, int dim)
-{
-  for(int i = 0; i < numCentroid; i++)
-  {
-    for(int j = 0; j < dim; j++)
-    {
-      // set the n centroid locations the first n data points
-      centroidList[i].coords[j] = pointList[i].coords[j];
-    }
-  }
-}

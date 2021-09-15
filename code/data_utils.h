@@ -5,6 +5,7 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 
 // typedefs
 
@@ -38,8 +39,6 @@ void fillPoints(double **data, int size, int dim, Point *pointList);
 void freePoints(Point *pointList, int num);
 void freeCentroids(Centroid *centroidList, int num);
 void freeDataset(double **data, int num);
-void startCentroids(Centroid *centroidList, int numCentroid,
-                    Point *pointList, int numPoint, int dim);
 
 
 #endif
