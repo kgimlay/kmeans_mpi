@@ -1,6 +1,6 @@
 // Author: Kevin Imlay
 
-#include "command_line_utils.h"
+#include "../inc/command_line_utils.h"
 
 // strings
 char *maxIterFlag = "-i";

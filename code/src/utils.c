@@ -1,6 +1,6 @@
 // Author: Keivn Imlay
 
-#include "utils.h"
+#include "../inc/utils.h"
 
 // strings
 char *lin_lloyd_str = "LINEAR_LLOYD\0";

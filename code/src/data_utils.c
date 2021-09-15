@@ -1,6 +1,6 @@
 // Author: Kevin Imlay
 
-#include "data_utils.h"
+#include "../inc/data_utils.h"
 
 
 void makePoints(Point *pointList, int size, int dim)
