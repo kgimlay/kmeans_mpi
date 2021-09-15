@@ -4,6 +4,8 @@
 #define DATA_UTILS_H
 
 
+#include <stdlib.h>
+
 // typedefs
 
 // N-Dimensional Centroid (Centroid)
@@ -27,6 +29,17 @@ typedef struct NDim_Data_Point {
   double *coords;       // coordinates of the data point
   Centroid *centroid;   // cluster membership
 } Point;
+
+
+// function prototypes
+void makePoints(Point *pointList, int size, int dim);
+void makeCentroids(Centroid *centroidList, int num, int dim);
+void fillPoints(double **data, int size, int dim, Point *pointList);
+void freePoints(Point *pointList, int num);
+void freeCentroids(Centroid *centroidList, int num);
+void freeDataset(double **data, int num);
+void startCentroids(Centroid *centroidList, int numCentroid,
+                    Point *pointList, int numPoint, int dim);
 
 
 #endif

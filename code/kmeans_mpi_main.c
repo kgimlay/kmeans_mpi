@@ -29,56 +29,28 @@ int main(int argc, char *argv[])
   // command line parsing successful, continue
   else
   {
-    // allocate data
-    centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
-    for(int i = 0; i < numClusters; i++)  // centroids
-    {
-      centroids[i].id = i;
-      centroids[i].dim = dataDimensionality;
-      centroids[i].coords = (double *)calloc(dataDimensionality, sizeof(double));
-      centroids[i].prevCoords = (double *)calloc(dataDimensionality, sizeof(double));
-      centroids[i].size = 0;
-    }
+    // import dataset from file
     dataPoints = (Point *)malloc(sizeof(Point) * dataSetSize);
-    for(int i = 0; i < dataSetSize; i++)  // data points
-    {
-      dataPoints[i] = *(Point *)malloc(sizeof(Point));
-      dataPoints[i].id = i;
-      dataPoints[i].dim = dataDimensionality;
-      dataPoints[i].coords = (double *)calloc(dataDimensionality, sizeof(double));
-      dataPoints[i].centroid = &centroids[i%numClusters];
-    }
+    makePoints(dataPoints, dataSetSize, dataDimensionality);
     dataset = (double **)malloc(sizeof(double *) * dataSetSize);
-    for(int i = 0; i < dataSetSize; i++) // dataset
+    for(int i = 0; i < dataSetSize; i++)
     {
       dataset[i] = (double *)malloc(sizeof(double) * dataDimensionality);
     }
-
-    // import dataset from file
     if(importDataset(dataset, dataDimensionality, dataSetSize, dataFilePath_buff) != FILE_OK)
     {
       printf("File could not be read!\n");
     }
     else
     {
-      // fill data points
-      for(int i = 0; i < dataSetSize; i++)
-      {
-        for(int j = 0; j < dataDimensionality; j++)
-        {
-          dataPoints[i].coords[j] = dataset[i][j];
-        }
-      }
+      // make data points
+      fillPoints(dataset, dataSetSize, dataDimensionality, dataPoints);
+      // make centroids
+      centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
+      makeCentroids(centroids, numClusters, dataDimensionality);
 
       // select starting points for centroids
-      for(int i = 0; i < numClusters; i++)
-      {
-        for(int j = 0; j < dataDimensionality; j++)
-        {
-          // set the n centroid locations the first n data points
-          centroids[i].coords[j] = dataPoints[i].coords[j];
-        }
-      }
+      startCentroids(centroids, numClusters, dataPoints, dataSetSize, dataDimensionality);
 
       // start the algorithm selected
       switch (*algo_select) {
@@ -95,30 +67,14 @@ int main(int argc, char *argv[])
       {
         printf("File could not be written!\n");
       }
+
+      // free memory
+      freeCentroids(centroids, numClusters);
     }
 
     // free memory
-    // dataset
-    for(int i = 0; i < dataSetSize; i++)
-    {
-      free(dataset[i]);
-    }
-    free(dataset);
-
-    // dataPoints
-    for(int i = 0; i < dataSetSize; i++)  // data points
-    {
-      free(dataPoints[i].coords);
-    }
-    free(dataPoints);
-
-    // centroids
-    for(int i = 0; i < numClusters; i++)  // centroids
-    {
-      free(centroids[i].coords);
-      free(centroids[i].prevCoords);
-    }
-    free(centroids);
+    freeDataset(dataset, dataSetSize);
+    freePoints(dataPoints, dataSetSize);
 
   } /* end else from command line arg parsing */
 

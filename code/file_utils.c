@@ -88,5 +88,5 @@ FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName)
 */
 FILE_CODE exportResults(char *outDir)
 {
-
+  return FILE_OK;
 }
