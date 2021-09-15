@@ -10,22 +10,22 @@ OBJ_DIR = objects/
 
 all: $(EXECUTABLE)
 
-kmeans_mpi_main.o: $(CODE_DIR)kmeans_mpi_main.c $(CODE_DIR)kmeans_mpi_main.h $(CODE_DIR)file_utils.h $(CODE_DIR)data_utils.h $(CODE_DIR)parameters.h $(CODE_DIR)lin_lloyd.h $(CODE_DIR)command_line_utils.h
+kmeans_mpi_main.o: $(CODE_DIR)kmeans_mpi_main.c $(CODE_DIR)kmeans_mpi_main.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)kmeans_mpi_main.c -o $(OBJ_DIR)kmeans_mpi_main.o
 
 utils.o: $(CODE_DIR)utils.c $(CODE_DIR)utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)utils.c -o $(OBJ_DIR)utils.o
 
-file_utils.o: $(CODE_DIR)file_utils.c $(CODE_DIR)file_utils.h $(CODE_DIR)data_utils.h
+file_utils.o: $(CODE_DIR)file_utils.c $(CODE_DIR)file_utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)file_utils.c -o $(OBJ_DIR)file_utils.o
 
 data_utils.o: $(CODE_DIR)data_utils.c $(CODE_DIR)data_utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)data_utils.c -o $(OBJ_DIR)data_utils.o
 
-lin_lloyd.o: $(CODE_DIR)lin_lloyd.c $(CODE_DIR)lin_lloyd.h $(CODE_DIR)parameters.h $(CODE_DIR)data_utils.h
+lin_lloyd.o: $(CODE_DIR)lin_lloyd.c $(CODE_DIR)lin_lloyd.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)lin_lloyd.c -o $(OBJ_DIR)lin_lloyd.o
 
-command_line_utils.o: $(CODE_DIR)command_line_utils.c $(CODE_DIR)command_line_utils.h $(CODE_DIR)utils.h $(CODE_DIR)parameters.h
+command_line_utils.o: $(CODE_DIR)command_line_utils.c
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)command_line_utils.c -o $(OBJ_DIR)command_line_utils.o
 
 $(EXECUTABLE): kmeans_mpi_main.o file_utils.o lin_lloyd.o command_line_utils.o utils.o data_utils.o
