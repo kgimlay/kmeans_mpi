@@ -28,8 +28,11 @@ lin_lloyd.o: $(CODE_DIR)lin_lloyd.c $(CODE_DIR)lin_lloyd.h
 command_line_utils.o: $(CODE_DIR)command_line_utils.c
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_DIR)command_line_utils.c -o $(OBJ_DIR)command_line_utils.o
 
-$(EXECUTABLE): kmeans_mpi_main.o file_utils.o lin_lloyd.o command_line_utils.o utils.o data_utils.o
-	$(CC) $(FLAGS) -o $(EXECUTABLE) $(OBJ_DIR)kmeans_mpi_main.o $(OBJ_DIR)file_utils.o $(OBJ_DIR)lin_lloyd.o $(OBJ_DIR)utils.o $(OBJ_DIR)command_line_utils.o $(OBJ_DIR)data_utils.o
+$(EXECUTABLE): kmeans_mpi_main.o file_utils.o lin_lloyd.o command_line_utils.o \
+	utils.o data_utils.o
+	$(CC) $(FLAGS) -o $(EXECUTABLE) $(OBJ_DIR)kmeans_mpi_main.o \
+	$(OBJ_DIR)file_utils.o $(OBJ_DIR)lin_lloyd.o $(OBJ_DIR)utils.o \
+	$(OBJ_DIR)command_line_utils.o $(OBJ_DIR)data_utils.o
 
 
 clean:
