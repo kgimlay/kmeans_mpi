@@ -124,7 +124,7 @@ void updateCentroids(Point *pointList, int pointListSize,
 /*
 
 */
-void startCentroids(Centroid *centrList, int centrListSize,
+void startCentroids_spanningMean(Centroid *centrList, int centrListSize,
                     Point *pointList, int pointListSize)
 {
   // assign points to 'random' centroids
@@ -149,7 +149,7 @@ void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
   bool convergenceFlag = false;
 
   // select starting points for centroids
-  startCentroids(centrList, centrList_size, pointList, pointList_size);
+  startCentroids_spanningMean(centrList, centrList_size, pointList, pointList_size);
 
   // while no convergence and not at max iterations
   for(iterationCntr = 0; iterationCntr < maxIter && !convergenceFlag; iterationCntr++)
