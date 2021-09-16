@@ -22,6 +22,15 @@
 // maximum size of string buffers
 #define MAX_STR_BUFF_SIZE 128
 
+// random generator seed
+#define RAND_SEED 90
+
+// select centroid start method
+// 0: first N datapoints
+// 1: spanning mean of alternating points
+// 2: random datapoints
+#define CENTR_START_METHOD 0
+
 // valid algorithms to run
 typedef enum {
   LINEAR_LLOYD = 0

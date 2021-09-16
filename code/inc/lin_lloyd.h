@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdio.h>
-//#include <random.h>
 #include "parameters.h"
 #include "data_utils.h"
 

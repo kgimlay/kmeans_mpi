@@ -2,14 +2,17 @@
 % Graph the iterations until convergence
 
 
-max_iterations = 19;
+max_iterations = 13;
+data_size = 1000;
+data_dimensionality = 2;
+num_clusters = 8;
 dataset_name = 'M2.csv';
 clust_output = 'clusters.csv';
 point_ass_output = 'point_assignment.csv';
 
 base_dir = '../School/graduate/CS685\ -\ Graduate\ Research/kmeans_mpi';
 base_dir_sans_esc = erase(base_dir, '\');
-kmeans_call_args = './kmeans LINEAR_LLOYD ./datasets/%s 500 2 10 ./output/ -i %d';
+kmeans_call_args = strcat(strcat('./kmeans LINEAR_LLOYD ./datasets/%s', sprintf(' %d %d %d ./output/', data_size, data_dimensionality, num_clusters)), ' -i %d')
 
 dataset_dir = '/datasets/%s';
 output_dir = '/output/%s';
@@ -66,5 +69,6 @@ for iteration = 0:max_iterations
     hold off
         
     % save plot
+    title(sprintf("%s (start of iteration %d)", dataset_name, iteration))
     exportgraphics(gcf, sprintf(img_file, iteration));
 end
