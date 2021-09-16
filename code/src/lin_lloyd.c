@@ -120,7 +120,6 @@ void updateCentroids(Point *pointList, int pointListSize,
 }
 
 
-
 /*
 
 */
@@ -141,6 +140,37 @@ void startCentroids_spanningMean(Centroid *centrList, int centrListSize,
 /*
 
 */
+void startCentroids_randDataPoint(Centroid *centrList, int centrListSize,
+                    Point *pointList, int pointListSize)
+{
+  // random seed
+  //srand(90);
+
+  // assign points to 'random' centroids
+  // this is just for consistency with spanningMean approach
+  for(int pointIdx = 0; pointIdx < pointListSize; pointIdx++)
+  {
+    pointList[pointIdx].centroid = &centrList[pointIdx%centrListSize];
+  }
+
+  // loop over centroids and pick a random datapoint to set it's coords to
+  for(int centrIdx = 0; centrIdx < centrListSize; centrIdx++)
+  {
+    // get random point
+    Point *randPoint = &pointList[centrIdx];
+
+    // set coords to coords of a random point
+    for(int dimIdx = 0; dimIdx < centrList[0].dim; dimIdx++)
+    {
+      centrList[centrIdx].coords[dimIdx] = randPoint->coords[dimIdx];
+    }
+  }
+}
+
+
+/*
+
+*/
 void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
                     int centrList_size, int maxIter)
 {
@@ -149,7 +179,7 @@ void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
   bool convergenceFlag = false;
 
   // select starting points for centroids
-  startCentroids_spanningMean(centrList, centrList_size, pointList, pointList_size);
+  startCentroids_randDataPoint(centrList, centrList_size, pointList, pointList_size);
 
   // while no convergence and not at max iterations
   for(iterationCntr = 0; iterationCntr < maxIter && !convergenceFlag; iterationCntr++)
