@@ -33,7 +33,10 @@
 
 // valid algorithms to run
 typedef enum {
-  LINEAR_LLOYD = 0
+  LINEAR_LLOYD = 0,
+  MPI_LLOYD,
+  LINEAR_YINYANG,
+  MPI_YINYANG
 } ALGO_CODE;
 
 

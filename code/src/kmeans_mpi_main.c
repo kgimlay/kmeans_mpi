@@ -52,14 +52,20 @@ int main(int argc, char *argv[])
       makeCentroids(centroids, numClusters, dataDimensionality);
 
       // start the algorithm selected
-      switch (algo_select) {
-        case LINEAR_LLOYD:
-          run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-                          maxIterations);
-          break;
-
-        default:
-          break;
+      if (algo_select == LINEAR_LLOYD)
+      {
+        run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
+                        maxIterations);
+      }
+      else if (algo_select == MPI_LLOYD)
+      {
+        run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
+                        maxIterations);
+      }
+      else
+      {
+        // should never get here!
+        printf("Uh oh! [kmeans_mpi_main.c]\n");
       }
 
       // save results to files

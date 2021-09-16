@@ -9,8 +9,9 @@
 #include "file_utils.h"
 #include "data_utils.h"
 #include "parameters.h"
-#include "lin_lloyd.h"
 #include "command_line_utils.h"
+#include "lin_lloyd.h"
+#include "mpi_lloyd.h"
 
 
 #endif
