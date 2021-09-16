@@ -1,1 +1,1 @@
-./kmeans LINEAR_LLOYD ./datasets/M.csv 500 2 5 ./output/
+./kmeans LINEAR_LLOYD ./datasets/M2.csv 500 2 3 ./output/

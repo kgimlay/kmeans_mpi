@@ -114,7 +114,7 @@ FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *cent
     clustTable[i] = (double *)malloc(sizeof(double) * centroids[0].dim);
     for(int j = 0; j < centroids[0].dim; j++)
     {
-      clustTable[i][j] = pointList[i].centroid->coords[j];
+      clustTable[i][j] = centroids[i].coords[j];
     }
   }
   // send to export

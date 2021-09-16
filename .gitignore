@@ -8,3 +8,5 @@ kmeans
 # ignore output files
 *.txt
 *.csv
+*.jpg
+*.asv
