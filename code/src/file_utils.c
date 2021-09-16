@@ -106,6 +106,7 @@ FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *cent
     *assTable[i] = (double)(pointList[i].centroid->id);
   }
   // send to export
+  // todo: handle file errors
   exportCsv(assTable, size, 1, outClustAss);
 
   // allocate clusters and fill
@@ -118,5 +119,9 @@ FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *cent
     }
   }
   // send to export
+  // todo: handle file errors
   exportCsv(clustTable, numCentroids, centroids[0].dim, outCentr);
+
+  // file export ok
+  return FILE_OK;
 }
