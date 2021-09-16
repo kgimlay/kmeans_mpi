@@ -1,20 +1,38 @@
 // Author: Kevin Imlay
 
-#include "../inc/lin_lloyd.h"
+#include "../inc/mpi_lloyd.h"
 
 
 /*
 
 */
 void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
-                    int centrList_size, int maxIter)
+                    int centrList_size, int maxIter, int mpi_numProc, int mpi_rank)
 {
   // operation variables
   int iterationCntr;
   bool convergenceFlag = false;
+  Point *pointSublist;
+  int pointSublistSize;
 
   // select starting points for centroids
   startCentroids(centrList, centrList_size, pointList, pointList_size);
+
+  /** begin processes divergence **/
+  // select points for process
+  pointSublistSize = pointList_size / mpi_numProc;
+  if (mpi_rank == 0)
+  {
+    // rank 0 takes the odd point from if the size of the point list is odd
+    pointSublistSize += pointList_size % mpi_numProc;
+    pointSublist = &pointList[mpi_rank * pointSublistSize];
+  }
+  else
+  {
+    // offset the other ranks' sublist by the amount added to rank 0's size
+    pointSublist = &pointList[mpi_rank * pointSublistSize + pointList_size % mpi_numProc];
+  }
+  printf("Rank %d taking points %d thru %d\n", mpi_rank, pointSublist[0].id, pointSublist[pointSublistSize-1].id);
 
   // while no convergence and not at max iterations
   for(iterationCntr = 0; iterationCntr < maxIter && !convergenceFlag; iterationCntr++)
@@ -51,14 +69,5 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
 
   } /* end while */
 
-  // if convergence not reached in max iterations
-  if (!convergenceFlag)
-  {
-    printf("Convergence not reached in %d iterations\n", iterationCntr);
-  }
-  else
-  {
-    // convergence reached
-    printf("Convergence reached in %d iterations\n", iterationCntr);
-  }
+  /** end processes divergence **/
 }

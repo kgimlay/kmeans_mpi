@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <mpi.h>
 #include "file_utils.h"
 #include "data_utils.h"
 #include "parameters.h"

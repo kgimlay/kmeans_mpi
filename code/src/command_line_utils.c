@@ -10,7 +10,7 @@ char *manFlag = "-man";
 char *helpStr = "\n"
 "============================================================================\n"
 "Command Line Arguments\n\n"
-"mpirun <MPI> kmeans <Required> <Optional>\n\n"
+"mpiexec <MPI> kmeans <Required> <Optional>\n\n"
 "MPI:\n"
 " -nc <num processes>               (set to 1 for linear algorithms)\n"
 "Required:\n"

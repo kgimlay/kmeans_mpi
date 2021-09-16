@@ -18,6 +18,13 @@ int main(int argc, char *argv[])
   Point *dataPoints;
   Centroid *centroids;
   double **dataset;
+  int mpi_numProc;
+  int mpi_rank;
+
+  // init MPI and get rank and number of processes
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
   // get command line arguments
   if (!parse_commandline(argc, argv, &algo_select, dataFilePath_buff, &dataSetSize,
@@ -25,7 +32,8 @@ int main(int argc, char *argv[])
   {
     printf("%s\n", "Terminating program.");
   }
-  // command line parsing successful, continue
+
+  /* command line parsing successful, continue */
   else
   {
     // import dataset from file
@@ -41,6 +49,8 @@ int main(int argc, char *argv[])
     {
       printf("File could not be read!\n");
     }
+
+    /* File read successful */
     else
     {
       // make data points
@@ -58,7 +68,7 @@ int main(int argc, char *argv[])
       else if (algo_select == MPI_LLOYD)
       {
         run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-                        maxIterations);
+                        maxIterations, mpi_numProc, mpi_rank);
       }
       else
       {
@@ -67,11 +77,14 @@ int main(int argc, char *argv[])
       }
 
       // save results to files
-      if(exportResults(outputFilePath_buff, dataPoints, dataSetSize, centroids,
-          numClusters)
-          != FILE_OK)
+      if(mpi_rank == 0)
       {
-        printf("File could not be written!\n");
+        if(exportResults(outputFilePath_buff, dataPoints, dataSetSize, centroids,
+            numClusters)
+            != FILE_OK)
+        {
+          printf("File could not be written!\n");
+        }
       }
 
       // free memory
@@ -84,5 +97,6 @@ int main(int argc, char *argv[])
 
   } /* end else from command line arg parsing */
 
-  // free memory
+  // end mpi
+  MPI_Finalize();
 }

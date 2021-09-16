@@ -50,15 +50,4 @@ void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
     }
 
   } /* end while */
-
-  // if convergence not reached in max iterations
-  if (!convergenceFlag)
-  {
-    printf("Convergence not reached in %d iterations\n", iterationCntr);
-  }
-  else
-  {
-    // convergence reached
-    printf("Convergence reached in %d iterations\n", iterationCntr);
-  }
 }
