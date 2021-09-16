@@ -23,17 +23,20 @@ file_utils.o: $(CODE_SRC_DIR)file_utils.c $(CODE_INC_DIR)file_utils.h
 data_utils.o: $(CODE_SRC_DIR)data_utils.c $(CODE_INC_DIR)data_utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)data_utils.c -o $(OBJ_DIR)data_utils.o
 
-lin_lloyd.o: $(CODE_SRC_DIR)lin_lloyd.c $(CODE_INC_DIR)lin_lloyd.h
-	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)lin_lloyd.c -o $(OBJ_DIR)lin_lloyd.o
-
 command_line_utils.o: $(CODE_SRC_DIR)command_line_utils.c $(CODE_INC_DIR)command_line_utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)command_line_utils.c -o $(OBJ_DIR)command_line_utils.o
 
+lin_lloyd.o: $(CODE_SRC_DIR)lin_lloyd.c $(CODE_INC_DIR)lin_lloyd.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)lin_lloyd.c -o $(OBJ_DIR)lin_lloyd.o
+
+mpi_lloyd.o: $(CODE_SRC_DIR)mpi_lloyd.c $(CODE_INC_DIR)mpi_lloyd.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)mpi_lloyd.c -o $(OBJ_DIR)mpi_lloyd.o
+
 $(EXECUTABLE): kmeans_mpi_main.o file_utils.o lin_lloyd.o command_line_utils.o \
-	utils.o data_utils.o
+	utils.o data_utils.o mpi_lloyd.o
 	$(CC) $(FLAGS) -o $(EXECUTABLE) $(OBJ_DIR)kmeans_mpi_main.o \
 	$(OBJ_DIR)file_utils.o $(OBJ_DIR)lin_lloyd.o $(OBJ_DIR)utils.o \
-	$(OBJ_DIR)command_line_utils.o $(OBJ_DIR)data_utils.o
+	$(OBJ_DIR)command_line_utils.o $(OBJ_DIR)data_utils.o $(OBJ_DIR)mpi_lloyd.o
 
 
 clean:

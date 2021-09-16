@@ -6,6 +6,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+#include "parameters.h"
 
 // typedefs
 
@@ -39,6 +41,13 @@ void fillPoints(double **data, int size, int dim, Point *pointList);
 void freePoints(Point *pointList, int num);
 void freeCentroids(Centroid *centroidList, int num);
 void freeDataset(double **data, int num);
-
+double calcSquaredEuclideanDist(Point point, Centroid centroid);
+void primeCentroid(Centroid *centroidList, int listSize);
+void updatePointClusterMembership(Point *pointList, int pointListSize,
+                                  Centroid *centroidList, int centroidlistSize);
+void updateCentroids(Point *pointList, int pointListSize,
+                      Centroid *centroidList, int centroidlistSize);
+void startCentroids(Centroid *centrList, int centrListSize,
+                    Point *pointList, int pointListSize);
 
 #endif
