@@ -4,13 +4,15 @@
 
 // strings
 char *maxIterFlag = "-i";
-char *numCoresFlag = "-c";
 char *helpFlag = "-h";
 char *manFlag = "-man";
 
 char *helpStr = "\n"
 "============================================================================\n"
-"Command Line Arguments\n"
+"Command Line Arguments\n\n"
+"mpirun <MPI> kmeans <Required> <Optional>\n\n"
+"MPI:\n"
+" -nc <num processes>               (set to 1 for linear algorithms)\n"
 "Required:\n"
 " <algorithm>\n"
 "   LIN_LLOYD, MPI_LLOYD, LIN_YINYANG, MPI_YINYANG\n"
@@ -22,7 +24,6 @@ char *helpStr = "\n"
 " <output filepath>                 (max: %d characters)"
 "\nOptional:\n"
 " %s <max iterations>               (maximum number of iterations to allow)\n"
-" %s <number of cores>              (max: number of cores on machine)\n"
 " %s                                (help. prints valid command line args)\n"
 " %s                                (prints info on program and how to use)\n"
 "============================================================================\n"
@@ -90,31 +91,12 @@ bool parseValidate_required(int argc, char *argv[], ALGO_CODE *algo,
 /*
 
 */
-bool parseValidate_optional(int argc, char *argv[], int *numIterations, int *numCores)
+bool parseValidate_optional(int argc, char *argv[], int *numIterations)
 {
   // parse and validate everything after required
   for (int i = 7; i < argc; i += 2) {
-    // number of cores
-    if (!strcmp(argv[i], numCoresFlag) && i+1 < argc)
-    {
-      sscanf(argv[i + 1], "%d", numCores);
-
-      // number of cores must be at least 1
-      if (*numCores < 1)
-      {
-        printf("Number of cores must be at least 1!\n");
-        return false;
-      }
-      // number of cores cannot exceed number in machine
-      else if(*numCores > MAX_CORES)
-      {
-        printf("Number of cores input exceeds the max of the machine!\n");
-        return false;
-      }
-    }
-
     // number of iterations
-    else if (!strcmp(argv[i], maxIterFlag) && i+1 < argc)
+    if (!strcmp(argv[i], maxIterFlag) && i+1 < argc)
     {
       sscanf(argv[i + 1], "%d", numIterations);
 
@@ -144,14 +126,14 @@ bool parseValidate_optional(int argc, char *argv[], int *numIterations, int *num
 */
 bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
   char *dataFilePath_buff, int *dataSetSize, int *dataDimensionality,
-  int *numClusters, int *numIterations, int *numCores, char *outputFilePath_buff)
+  int *numClusters, int *numIterations, char *outputFilePath_buff)
 {
   // first check for help flag or info flag
   for (int i = 0; i < argc; i++) {
     // help flag
     if (!strcmp(argv[i], helpFlag)) {
       printf(helpStr, MAX_STR_BUFF_SIZE, MAX_STR_BUFF_SIZE, maxIterFlag,
-              numCoresFlag, helpFlag, manFlag);
+              helpFlag, manFlag);
       return false;
     }
     // manual flag
@@ -169,7 +151,7 @@ bool parse_commandline(int argc, char *argv[], ALGO_CODE *algo,
   }
 
   // parse optional arguments
-  if (!parseValidate_optional(argc, argv, numIterations, numCores))
+  if (!parseValidate_optional(argc, argv, numIterations))
   {
     return false;
   }

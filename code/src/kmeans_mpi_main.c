@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
   int dataSetSize = 0;
   int dataDimensionality = 0;
   int numClusters = 0;
-  int numCores = MAX_CORES;
   int maxIterations = DEFAULT_MAX_ITERATIONS;
   Point *dataPoints;
   Centroid *centroids;
@@ -22,8 +21,7 @@ int main(int argc, char *argv[])
 
   // get command line arguments
   if (!parse_commandline(argc, argv, &algo_select, dataFilePath_buff, &dataSetSize,
-    &dataDimensionality, &numClusters, &maxIterations, &numCores,
-    outputFilePath_buff))
+    &dataDimensionality, &numClusters, &maxIterations, outputFilePath_buff))
   {
     printf("%s\n", "Terminating program.");
   }
