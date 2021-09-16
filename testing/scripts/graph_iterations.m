@@ -2,10 +2,10 @@
 % Graph the iterations until convergence
 
 
-max_iterations = 13;
+max_iterations = 8;
 data_size = 1000;
 data_dimensionality = 2;
-num_clusters = 8;
+num_clusters = 5;
 dataset_name = 'M2.csv';
 clust_output = 'clusters.csv';
 point_ass_output = 'point_assignment.csv';

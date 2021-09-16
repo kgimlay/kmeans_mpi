@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
   // operation variables
-  ALGO_CODE *algo_select = (ALGO_CODE *)malloc(sizeof(ALGO_CODE));
+  ALGO_CODE algo_select;
   char dataFilePath_buff[MAX_STR_BUFF_SIZE];
   char outputFilePath_buff[MAX_STR_BUFF_SIZE];
   int dataSetSize = 0;
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   double **dataset;
 
   // get command line arguments
-  if (!parse_commandline(argc, argv, algo_select, dataFilePath_buff, &dataSetSize,
+  if (!parse_commandline(argc, argv, &algo_select, dataFilePath_buff, &dataSetSize,
     &dataDimensionality, &numClusters, &maxIterations, &numCores,
     outputFilePath_buff))
   {
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
       makeCentroids(centroids, numClusters, dataDimensionality);
 
       // start the algorithm selected
-      switch (*algo_select) {
+      switch (algo_select) {
         case LINEAR_LLOYD:
           run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
                           maxIterations);
@@ -81,5 +81,4 @@ int main(int argc, char *argv[])
   } /* end else from command line arg parsing */
 
   // free memory
-  free(algo_select);
 }
