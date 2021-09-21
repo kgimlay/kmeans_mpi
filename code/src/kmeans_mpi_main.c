@@ -21,11 +21,6 @@ int main(int argc, char *argv[])
   int mpi_numProc;
   int mpi_rank;
 
-  // init MPI and get rank and number of processes
-  MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
-  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-
   // get command line arguments
   if (!parse_commandline(argc, argv, &algo_select, dataFilePath_buff, &dataSetSize,
     &dataDimensionality, &numClusters, &maxIterations, outputFilePath_buff))
@@ -59,7 +54,15 @@ int main(int argc, char *argv[])
       centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
       makeCentroids(centroids, numClusters, dataDimensionality);
 
+      /* BEGIN MPI SECTION */
+
+      // init MPI and get rank and number of processes
+      MPI_Init(&argc, &argv);
+      MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
+      MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+
       // start the algorithm selected
+      double sTime = MPI_Wtime();
       if (algo_select == LINEAR_LLOYD)
       {
         run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
@@ -75,6 +78,16 @@ int main(int argc, char *argv[])
         // should never get here!
         printf("Uh oh! [kmeans_mpi_main.c]\n");
       }
+      double eTime = MPI_Wtime();
+      if (mpi_rank == 0)
+      {
+        printf("Runtime: %.5f seconds\n", eTime - sTime);
+      }
+
+      // end mpi
+      MPI_Finalize();
+
+      /* END MPI SECTION */
 
       // save results to files
       if(mpi_rank == 0)
@@ -108,7 +121,4 @@ int main(int argc, char *argv[])
     freePoints(dataPoints, dataSetSize);
 
   } /* end else from command line arg parsing */
-
-  // end mpi
-  MPI_Finalize();
 }

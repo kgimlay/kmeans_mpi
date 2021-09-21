@@ -92,5 +92,10 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
 
   } /* end while */
 
+  // communicate to set rank 0's point data (centroid assignment) to reflect
+  // the distributed conclusion
+  
+
+  // free memory
   free(mpiCentrDataList);
 }
