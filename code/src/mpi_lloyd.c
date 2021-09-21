@@ -48,13 +48,14 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
     // offset the other ranks' sublist by the amount added to rank 0's size
     pointSublist = &pointList[mpi_rank * pointSublist_size + pointList_size % mpi_numProc];
   }
-  printf("Rank %d taking points %d thru %d\n", mpi_rank, pointSublist[0].id, pointSublist[pointSublist_size-1].id);
+  // printf("Rank %d taking points %d thru %d\n", mpi_rank, pointSublist[0].id, pointSublist[pointSublist_size-1].id);
 
   /** end processes divergence on rank **/
 
   // while no convergence and not at max iterations
   for(iterationCntr = 0; iterationCntr < maxIter && !convergenceFlag; iterationCntr++)
   {
+    // printf("Rank %d, Iteration %d\n", mpi_rank, iterationCntr);
     // update convergence to assume true
     // is changed if found to be false
     convergenceFlag = true;
@@ -94,7 +95,7 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
 
   // communicate to set rank 0's point data (centroid assignment) to reflect
   // the distributed conclusion
-  
+
 
   // free memory
   free(mpiCentrDataList);

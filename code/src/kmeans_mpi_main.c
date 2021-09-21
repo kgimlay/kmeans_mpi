@@ -63,21 +63,23 @@ int main(int argc, char *argv[])
 
       // start the algorithm selected
       double sTime = MPI_Wtime();
-      if (algo_select == LINEAR_LLOYD)
-      {
-        run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-                        maxIterations);
+      switch (algo_select) {
+        case LINEAR_LLOYD:
+          run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
+                          maxIterations);
+          break;
+
+        case MPI_LLOYD:
+          run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
+                          maxIterations, mpi_numProc, mpi_rank);
+          break;
+
+        default:
+          // should never get here!
+          printf("Uh oh! [kmeans_mpi_main.c]\n");
+          break;
       }
-      else if (algo_select == MPI_LLOYD)
-      {
-        run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-                        maxIterations, mpi_numProc, mpi_rank);
-      }
-      else
-      {
-        // should never get here!
-        printf("Uh oh! [kmeans_mpi_main.c]\n");
-      }
+      
       double eTime = MPI_Wtime();
       if (mpi_rank == 0)
       {

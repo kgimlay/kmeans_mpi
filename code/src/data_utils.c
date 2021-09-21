@@ -277,13 +277,14 @@ void updateCentroids_MPI(Point *pointSublist, int pointSublist_size,
   // locations
   if (mpi_rank != 0)
   {
+    // printf("Rank %d sending to Rank 0\n", mpi_rank);
     // send to rank 0
     MPI_Send(mpiCentrDataList,
       centrList_size * (centrList[0].dim + 1),
       MPI_DOUBLE,
       0, 0,
       MPI_COMM_WORLD);
-
+    // printf("Rank %d, done sending\n", mpi_rank);
     // receive new centroid locations from rank 0
     MPI_Status status;
     MPI_Recv(mpiCentrDataList,
@@ -300,14 +301,16 @@ void updateCentroids_MPI(Point *pointSublist, int pointSublist_size,
   {
     // receive weighted means
     MPI_Status status;
-    for (int i = 1; i < mpi_numProc; i += centrList_size)
+    for (int i = 1; i < mpi_numProc; i++)
     {
+      // printf("Rank 0 receiving from Rank %d\n", i);
       MPI_Recv(&mpiCentrDataList[i * mpiCentrDataList_width * centrList_size],
         centrList_size * mpiCentrDataList_width,
         MPI_DOUBLE,
-        1, 0,
+        i, 0,
         MPI_COMM_WORLD,
         &status);
+      // printf("Rank 0, done receiving from rank %d\n", i);
     }
 
     // recalculate center of clusters
