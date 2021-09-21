@@ -85,6 +85,18 @@ int main(int argc, char *argv[])
         {
           printf("File could not be written!\n");
         }
+
+        // report centroid locations
+        printf("Centroids:\n");
+        for (int i = 0; i < numClusters; i++)
+        {
+          printf("centroid %d: ", i);
+          for (int j = 0; j < dataDimensionality; j++)
+          {
+            printf("%.3f, ", centroids[i].coords[j]);
+          }
+          printf("\n");
+        }
       }
 
       // free memory
