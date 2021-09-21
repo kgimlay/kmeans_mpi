@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <mpi.h>
 #include "parameters.h"
 
 // typedefs
@@ -49,5 +50,9 @@ void updateCentroids(Point *pointList, int pointListSize,
                       Centroid *centroidList, int centroidlistSize);
 void startCentroids(Centroid *centrList, int centrListSize,
                     Point *pointList, int pointListSize);
+void updateCentroids_MPI(Point *pointSublist, int pointSublist_size,
+                      Centroid *centrList, int centrList_size,
+                      int mpi_rank, int mpi_numProc, double *mpiCentrDataList,
+                      int mpiCentrDataList_width);
 
 #endif

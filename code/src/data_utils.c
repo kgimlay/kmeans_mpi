@@ -247,3 +247,107 @@ void startCentroids(Centroid *centrList, int centrListSize,
   #endif
   /* end starting position select */
 }
+
+
+/*
+
+*/
+void updateCentroids_MPI(Point *pointSublist, int pointSublist_size,
+                      Centroid *centrList, int centrList_size,
+                      int mpi_rank, int mpi_numProc, double *mpiCentrDataList,
+                      int mpiCentrDataList_width)
+{
+  int dataDim = pointSublist[0].dim;
+
+  // calculate weighted means
+  for (int i = 0; i < pointSublist_size; i++)
+  {
+    Point *tempPoint = &pointSublist[i];
+    for (int j = 0 ; j < tempPoint->dim; j++)
+    {
+      mpiCentrDataList[tempPoint->centroid->id * mpiCentrDataList_width + j] += tempPoint->coords[j];
+    }
+    mpiCentrDataList[tempPoint->centroid->id * mpiCentrDataList_width + centrList[0].dim]++;
+  }
+
+
+  /** begin processes divergence on rank **/
+
+  // if not rank 0, send weighted mean to rank 0, then wait for new centroid
+  // locations
+  if (mpi_rank != 0)
+  {
+    // send to rank 0
+    MPI_Send(mpiCentrDataList,
+      centrList_size * (centrList[0].dim + 1),
+      MPI_DOUBLE,
+      0, 0,
+      MPI_COMM_WORLD);
+
+    // receive new centroid locations from rank 0
+    MPI_Status status;
+    MPI_Recv(mpiCentrDataList,
+      centrList_size * mpiCentrDataList_width,
+      MPI_DOUBLE,
+      0, 0,
+      MPI_COMM_WORLD,
+      &status);
+  }
+
+  // if rank 0, recieve weighted sums, calculate new centroid locations,
+  // and send locations back to all other ranks
+  else
+  {
+    // receive weighted means
+    MPI_Status status;
+    for (int i = 1; i < mpi_numProc; i += centrList_size)
+    {
+      MPI_Recv(&mpiCentrDataList[i * mpiCentrDataList_width * centrList_size],
+        centrList_size * mpiCentrDataList_width,
+        MPI_DOUBLE,
+        1, 0,
+        MPI_COMM_WORLD,
+        &status);
+    }
+
+    // recalculate center of clusters
+    for (int i = 0; i < centrList_size; i++)
+    {
+      for (int j = 0; j < mpiCentrDataList_width; j++)
+      {
+        for (int k = 1; k < mpi_numProc; k++)
+        {
+          mpiCentrDataList[i * mpiCentrDataList_width + j] +=
+            mpiCentrDataList[i * mpiCentrDataList_width + j + k * mpiCentrDataList_width * centrList_size];
+        }
+      }
+    }
+    for (int i = 0; i < centrList_size; i++)
+    {
+      for (int j = 0; j < mpiCentrDataList_width - 1; j++)
+      {
+        mpiCentrDataList[i * mpiCentrDataList_width + j] /=
+          mpiCentrDataList[i * mpiCentrDataList_width + mpiCentrDataList_width - 1];
+      }
+    }
+
+    for (int i = 1; i < mpi_numProc; i++)
+    {
+      MPI_Send(mpiCentrDataList,
+        centrList_size * mpiCentrDataList_width,
+        MPI_DOUBLE,
+        i, 0,
+        MPI_COMM_WORLD);
+    }
+  }
+
+  /** end processes divergence on rank **/
+
+  for (int i = 0; i < centrList_size; i++)
+  {
+    for (int j = 0; j < dataDim; j++)
+    {
+      centrList[i].coords[j] = mpiCentrDataList[i * mpiCentrDataList_width + j];
+    }
+  }
+}
