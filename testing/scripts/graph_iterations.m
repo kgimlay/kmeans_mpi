@@ -2,8 +2,8 @@
 % Graph the iterations until convergence
 
 
-max_iterations = 10;
-data_size = 10000;
+max_iterations = 0;
+data_size = 1000000;
 data_dimensionality = 2;
 num_clusters = 5;
 dataset_name = 'M2.csv';
@@ -13,7 +13,7 @@ point_ass_output = 'point_assignment.csv';
 base_dir = '../School/graduate/CS685\ -\ Graduate\ Research/kmeans_mpi';
 base_dir_sans_esc = erase(base_dir, '\');
 path_export = 'export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"';
-kmeans_call_args = strcat(strcat('mpiexec -np 2 kmeans MPI_LLOYD ./datasets/%s', sprintf(' %d %d %d ./output/', data_size, data_dimensionality, num_clusters)), ' -i %d');
+kmeans_call_args = strcat(strcat('./kmeans MPI_LLOYD ./datasets/%s', sprintf(' %d %d %d ./output/', data_size, data_dimensionality, num_clusters)), ' -i %d');
 
 dataset_dir = '/datasets/%s';
 output_dir = '/output/%s';

@@ -79,11 +79,11 @@ int main(int argc, char *argv[])
           printf("Uh oh! [kmeans_mpi_main.c]\n");
           break;
       }
-      
+
       double eTime = MPI_Wtime();
       if (mpi_rank == 0)
       {
-        printf("Runtime: %.5f seconds\n", eTime - sTime);
+        printf("Runtime: %.6f seconds\n", eTime - sTime);
       }
 
       // end mpi
@@ -102,16 +102,16 @@ int main(int argc, char *argv[])
         }
 
         // report centroid locations
-        printf("Centroids:\n");
-        for (int i = 0; i < numClusters; i++)
-        {
-          printf("centroid %d: ", i);
-          for (int j = 0; j < dataDimensionality; j++)
-          {
-            printf("%.3f, ", centroids[i].coords[j]);
-          }
-          printf("\n");
-        }
+      //   printf("Centroids:\n");
+      //   for (int i = 0; i < numClusters; i++)
+      //   {
+      //     printf("centroid %d: ", i);
+      //     for (int j = 0; j < dataDimensionality; j++)
+      //     {
+      //       printf("%.3f, ", centroids[i].coords[j]);
+      //     }
+      //     printf("\n");
+      //   }
       }
 
       // free memory
