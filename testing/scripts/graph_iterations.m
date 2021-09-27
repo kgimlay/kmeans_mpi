@@ -13,7 +13,7 @@ point_ass_output = 'point_assignment.csv';
 base_dir = '../School/graduate/CS685\ -\ Graduate\ Research/kmeans_mpi';
 base_dir_sans_esc = erase(base_dir, '\');
 path_export = 'export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"';
-kmeans_call_args = strcat(strcat('./kmeans MPI_LLOYD ./datasets/%s', sprintf(' %d %d %d ./output/', data_size, data_dimensionality, num_clusters)), ' -i %d');
+kmeans_call_args = strcat(strcat('./kmeans SEQ_YINYANG ./datasets/%s', sprintf(' %d %d %d ./output/', data_size, data_dimensionality, num_clusters)), ' -i %d');
 
 dataset_dir = '/datasets/%s';
 output_dir = '/output/%s';

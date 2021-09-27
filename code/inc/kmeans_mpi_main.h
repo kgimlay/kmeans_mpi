@@ -14,6 +14,7 @@
 #include "command_line_utils.h"
 #include "lin_lloyd.h"
 #include "mpi_lloyd.h"
+#include "seq_yinyang.h"
 
 
 #endif

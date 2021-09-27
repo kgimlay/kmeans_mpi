@@ -64,20 +64,32 @@ int main(int argc, char *argv[])
       // start the algorithm selected
       double sTime = MPI_Wtime();
       switch (algo_select) {
-        case LINEAR_LLOYD:
+        case SEQ_LLOYD:
+        {
           run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
                           maxIterations);
           break;
+        }
 
         case MPI_LLOYD:
+        {
           run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
                           maxIterations, mpi_numProc, mpi_rank);
           break;
+        }
+
+        case SEQ_YINYANG:
+        {
+          run_lin_yin();
+          break;
+        }
 
         default:
+        {
           // should never get here!
           printf("Uh oh! [kmeans_mpi_main.c]\n");
           break;
+        }
       }
 
       double eTime = MPI_Wtime();
