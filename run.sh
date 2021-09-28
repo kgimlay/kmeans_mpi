@@ -3,4 +3,4 @@ if [ ! $? -eq 0 ]; then echo 'build failed' && exit
 fi
 echo ''
 
-./kmeans MPI_LLOYD ./datasets/M2.csv 1000000 2 5 ./output/
+./kmeans SEQ_YINYANG ./datasets/M2.csv 1000000 2 5 ./output/

@@ -10,8 +10,6 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
                     int centrList_size, int maxIter, int mpi_numProc, int mpi_rank)
 {
   // operation variables
-  int iterationCntr;
-  bool convergenceFlag = false;
   Point *pointSublist;
   int pointSublist_size;
   int dataDim = pointList[0].dim;
@@ -53,13 +51,8 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
   /** end processes divergence on rank **/
 
   // while no convergence and not at max iterations
-  for(iterationCntr = 0; iterationCntr < maxIter && !convergenceFlag; iterationCntr++)
+  for(int iterationCntr = 0; iterationCntr < maxIter; iterationCntr++)
   {
-    // printf("Rank %d, Iteration %d\n", mpi_rank, iterationCntr);
-    // update convergence to assume true
-    // is changed if found to be false
-    convergenceFlag = true;
-
     // prime centroids for next iteration
     primeCentroid(centrList, centrList_size);
 

@@ -13,6 +13,8 @@ void makePoints(Point *pointList, int size, int dim)
     pointList[i].dim = dim;
     pointList[i].coords = (double *)calloc(dim, sizeof(double));
     pointList[i].centroid = NULL;
+    pointList[i].ub = 0.0;
+    pointList[i].lb = 0.0;
   }
 }
 
@@ -38,6 +40,7 @@ void makeCentroids(Centroid *centroidList, int num, int dim)
     centroidList[i].coords = (double *)calloc(dim, sizeof(double));
     centroidList[i].prevCoords = (double *)calloc(dim, sizeof(double));
     centroidList[i].size = 0;
+    centroidList[i].drift = 0.0;
   }
 }
 
