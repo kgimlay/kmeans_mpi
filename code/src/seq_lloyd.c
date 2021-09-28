@@ -1,6 +1,6 @@
 // Author: Kevin Imlay
 
-#include "../inc/lin_lloyd.h"
+#include "../inc/seq_lloyd.h"
 
 
 /*

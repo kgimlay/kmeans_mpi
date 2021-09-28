@@ -135,4 +135,6 @@ int main(int argc, char *argv[])
     freePoints(dataPoints, dataSetSize);
 
   } /* end else from command line arg parsing */
+
+  return 0; // return successful operation
 }

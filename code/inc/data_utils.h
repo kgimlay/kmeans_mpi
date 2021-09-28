@@ -20,6 +20,7 @@ typedef struct NDim_Centroid {
   int dim;              // dimensionality of the data
   double *coords;       // center of the cluster
   double *prevCoords;   // previous center of the cluster
+  double drift;         // distance between the current and previous coords
   int size;             // number of points in membership with cluster
 } Centroid;
 
@@ -32,6 +33,8 @@ typedef struct NDim_Data_Point {
   int dim;              // dimensionality of the data
   double *coords;       // coordinates of the data point
   Centroid *centroid;   // cluster membership
+  double lb;            // lower bound (for yinyang)
+  double ub;            // upper bound (for yinyang)
 } Point;
 
 
