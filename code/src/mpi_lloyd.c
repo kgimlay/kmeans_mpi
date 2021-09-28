@@ -79,16 +79,9 @@ void run_mpi_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
                         mpiCentrDataList_width);
 
     // check for convergence
-    for(int centrIdx = 0; centrIdx < centrList_size; centrIdx++)
+    if (checkConvergence(centrList, centrList_size))
     {
-      for(int dimIdx = 0; dimIdx < centrList[centrIdx].dim; dimIdx++)
-      {
-        if(centrList[centrIdx].coords[dimIdx] != centrList[centrIdx].prevCoords[dimIdx]
-            && !isnan(centrList[centrIdx].coords[dimIdx]))
-        {
-          convergenceFlag = false;
-        }
-      } /* end for */
+      break;
     }
 
   } /* end while */

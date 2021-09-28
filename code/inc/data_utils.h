@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <math.h>
 #include <mpi.h>
 #include "parameters.h"
@@ -47,6 +48,7 @@ void freeCentroids(Centroid *centroidList, int num);
 void freeDataset(double **data, int num);
 double calcSquaredEuclideanDist(Point point, Centroid centroid);
 void primeCentroid(Centroid *centroidList, int listSize);
+bool checkConvergence(Centroid *centrList, int centrList_size);
 void updatePointClusterMembership(Point *pointList, int pointListSize,
                                   Centroid *centroidList, int centroidlistSize);
 void updateCentroids(Point *pointList, int pointListSize,

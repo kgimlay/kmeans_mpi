@@ -13,9 +13,9 @@ DATA_DIM=2
 
 cd ../../.. # to root
 make        # make to reflect most recent changes
-
 if [ ! $? -eq 0 ]; then echo 'build failed' && exit
 fi
+echo ''
 
 # run sequential Lloyds
 # for k in $(seq $MIN_K_POW $MAX_K_POW)

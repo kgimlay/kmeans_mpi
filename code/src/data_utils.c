@@ -121,6 +121,25 @@ void primeCentroid(Centroid *centroidList, int listSize)
 }
 
 
+/*
+
+*/
+bool checkConvergence(Centroid *centrList, int centrList_size)
+{
+  for(int centrIdx = 0; centrIdx < centrList_size; centrIdx++)
+  {
+    for(int dimIdx = 0; dimIdx < centrList[centrIdx].dim; dimIdx++)
+    {
+      if(centrList[centrIdx].coords[dimIdx] != centrList[centrIdx].prevCoords[dimIdx]
+          && !isnan(centrList[centrIdx].coords[dimIdx]))
+      {
+        return true;
+      }
+    } /* end for */
+  }
+  return false;
+}
+
 
 /*
 

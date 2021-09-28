@@ -80,7 +80,8 @@ int main(int argc, char *argv[])
 
         case SEQ_YINYANG:
         {
-          run_lin_yin();
+          run_lin_yin(dataPoints, dataSetSize, centroids, numClusters,
+                          maxIterations);
           break;
         }
 
