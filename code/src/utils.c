@@ -19,14 +19,22 @@ bool str_to_algo(char *input, ALGO_CODE *algo)
     *algo = SEQ_LLOYD;
   }
 
+  // mpi lloyd algo
   else if (!strcmp(input, mpi_lloyd_str))
   {
     *algo = MPI_LLOYD;
   }
 
+  // seq yinyang algo
   else if (!strcmp(input, lin_yinyang_str))
   {
     *algo = SEQ_YINYANG;
+  }
+
+  // mpi yinyang algo
+  else if (!strcmp(input, mpi_yinyang_str))
+  {
+    *algo = MPI_YINYANG;
   }
 
   // catch all else
@@ -57,6 +65,11 @@ bool algo_to_str(ALGO_CODE algo, char *out)
   // seq yinyang algo
   else if (algo == SEQ_LLOYD) {
     strcpy(out, lin_yinyang_str);
+  }
+
+  // mpi yinyang algo
+  else if (algo == MPI_LLOYD) {
+    strcpy(out, mpi_yinyang_str);
   }
 
   // catch all else, should never get here

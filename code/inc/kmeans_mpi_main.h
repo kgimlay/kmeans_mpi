@@ -15,6 +15,7 @@
 #include "seq_lloyd.h"
 #include "mpi_lloyd.h"
 #include "seq_yinyang.h"
+#include "mpi_yinyang.h"
 
 
 #endif

@@ -85,6 +85,13 @@ int main(int argc, char *argv[])
           break;
         }
 
+        case MPI_YINYANG:
+        {
+          run_mpi_yin(dataPoints, dataSetSize, centroids, numClusters,
+                          maxIterations, mpi_numProc, mpi_rank);
+          break;
+        }
+
         default:
         {
           // should never get here!
