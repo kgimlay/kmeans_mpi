@@ -9,11 +9,12 @@
 #include <stdio.h>
 #include "parameters.h"
 #include "data_utils.h"
+#include "seq_lloyd.h"
 
 
 // function prototypes
 void run_lin_yin(Point *pointList, int pointList_size, Centroid *centrList,
-                    int centrList_size, int maxIter);
+                    int centrList_size, int numGroups, int maxIter);
 
 
 #endif

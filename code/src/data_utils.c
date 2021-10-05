@@ -41,6 +41,7 @@ void makeCentroids(Centroid *centroidList, int num, int dim)
     centroidList[i].prevCoords = (double *)calloc(dim, sizeof(double));
     centroidList[i].size = 0;
     centroidList[i].drift = 0.0;
+    centroidList[i].groupId = -1;
   }
 }
 
@@ -73,6 +74,23 @@ void freeDataset(double **data, int num)
     free(data[i]);
   }
   free(data);
+}
+
+
+/*
+
+*/
+void centrToPoint(Centroid *centroids, int size, Point *returnPoints)
+{
+  makePoints(returnPoints, size, centroids[0].dim);
+
+  for (int i = 0; i < size; i++)
+  {
+    for (int j = 0; j < centroids[0].dim; j++)
+    {
+      returnPoints[i].coords[j] = centroids[i].coords[j];
+    }
+  }
 }
 
 
@@ -153,7 +171,7 @@ void updatePointClusterMembership(Point *pointList, int pointListSize,
   // operation variables
   double tempMinDist;
   double tempDist;
-  Centroid *tempCentr;
+  Centroid *tempCentr = NULL;
 
   // loop over each point
   for(int pointIdx = 0; pointIdx < pointListSize; pointIdx++)

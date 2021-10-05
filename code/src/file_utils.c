@@ -122,6 +122,20 @@ FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *cent
   // todo: handle file errors
   exportCsv(clustTable, numCentroids, centroids[0].dim, outCentr);
 
+  // free memory
+  free(outCentr);
+  free(outClustAss);
+  for (int i = 0; i < size; i++)
+  {
+    free(assTable[i]);
+  }
+  free(assTable);
+  for (int i = 0; i < numCentroids; i++)
+  {
+    free(clustTable[i]);
+  }
+  free(clustTable);
+
   // file export ok
   return FILE_OK;
 }

@@ -13,6 +13,7 @@
 
 // typedefs
 
+
 // N-Dimensional Centroid (Centroid)
 // A centroid has a dimension and its coordinates
 // Note that a centroid (cluster) does not need any points assiciated with it
@@ -23,6 +24,7 @@ typedef struct NDim_Centroid {
   double *prevCoords;   // previous center of the cluster
   double drift;         // distance between the current and previous coords
   int size;             // number of points in membership with cluster
+  int groupId;          // group membership
 } Centroid;
 
 
@@ -46,6 +48,7 @@ void fillPoints(double **data, int size, int dim, Point *pointList);
 void freePoints(Point *pointList, int num);
 void freeCentroids(Centroid *centroidList, int num);
 void freeDataset(double **data, int num);
+void centrToPoint(Centroid *centroids, int size, Point *returnPoints);
 double calcSquaredEuclideanDist(Point point, Centroid centroid);
 void primeCentroid(Centroid *centroidList, int listSize);
 bool checkConvergence(Centroid *centrList, int centrList_size);

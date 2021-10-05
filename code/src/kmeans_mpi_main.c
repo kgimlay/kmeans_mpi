@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 
       // start the algorithm selected
       double sTime = MPI_Wtime();
+      
       switch (algo_select) {
         case SEQ_LLOYD:
         {
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
         case SEQ_YINYANG:
         {
           run_lin_yin(dataPoints, dataSetSize, centroids, numClusters,
-                          maxIterations);
+                          2, maxIterations);
           break;
         }
 
