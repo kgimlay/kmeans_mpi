@@ -80,23 +80,6 @@ void freeDataset(double **data, int num)
 /*
 
 */
-void centrToPoint(Centroid *centroids, int size, Point *returnPoints)
-{
-  makePoints(returnPoints, size, centroids[0].dim);
-
-  for (int i = 0; i < size; i++)
-  {
-    for (int j = 0; j < centroids[0].dim; j++)
-    {
-      returnPoints[i].coords[j] = centroids[i].coords[j];
-    }
-  }
-}
-
-
-/*
-
-*/
 double calcSquaredEuclideanDist(Point point, Centroid centroid)
 {
   // operaiton variables

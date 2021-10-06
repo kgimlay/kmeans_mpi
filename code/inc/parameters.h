@@ -12,6 +12,11 @@
 // will decrease performance, set to 0 for time critical
 #define DEBUG 0
 
+// enable mpi init and finalize
+// may help improve performance when MPI is not needed
+// i.e. when running sequential algorithms
+#define MPI 0
+
 // maximum number of cores to run MPI on
 // take care not to exceed machine limits
 #define MAX_CORES 8

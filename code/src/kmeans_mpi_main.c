@@ -7,6 +7,8 @@
 */
 int main(int argc, char *argv[])
 {
+  double Time0 = MPI_Wtime();
+
   // operation variables
   ALGO_CODE algo_select;
   char dataFilePath_buff[MAX_STR_BUFF_SIZE];
@@ -18,8 +20,10 @@ int main(int argc, char *argv[])
   Point *dataPoints;
   Centroid *centroids;
   double **dataset;
+  #if MPI == 1
   int mpi_numProc;
   int mpi_rank;
+  #endif
 
   // get command line arguments
   if (!parse_commandline(argc, argv, &algo_select, dataFilePath_buff, &dataSetSize,
@@ -57,13 +61,15 @@ int main(int argc, char *argv[])
       /* BEGIN MPI SECTION */
 
       // init MPI and get rank and number of processes
+      #if MPI == 1
       MPI_Init(&argc, &argv);
       MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
       MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+      #endif
 
       // start the algorithm selected
       double sTime = MPI_Wtime();
-      
+
       switch (algo_select) {
         case SEQ_LLOYD:
         {
@@ -72,26 +78,30 @@ int main(int argc, char *argv[])
           break;
         }
 
+        #if MPI == 1
         case MPI_LLOYD:
         {
           run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
                           maxIterations, mpi_numProc, mpi_rank);
           break;
         }
+        #endif
 
         case SEQ_YINYANG:
         {
           run_lin_yin(dataPoints, dataSetSize, centroids, numClusters,
-                          2, maxIterations);
+                          3, maxIterations);
           break;
         }
 
+        #if MPI == 1
         case MPI_YINYANG:
         {
           run_mpi_yin(dataPoints, dataSetSize, centroids, numClusters,
                           maxIterations, mpi_numProc, mpi_rank);
           break;
         }
+        #endif
 
         default:
         {
@@ -102,19 +112,27 @@ int main(int argc, char *argv[])
       }
 
       double eTime = MPI_Wtime();
+      #if MPI == 1
       if (mpi_rank == 0)
       {
+      #endif
         printf("Runtime: %.6f seconds\n", eTime - sTime);
+      #if MPI == 1
       }
+      #endif
 
       // end mpi
+      #if MPI == 1
       MPI_Finalize();
+      #endif
 
       /* END MPI SECTION */
 
       // save results to files
+      #if MPI == 1
       if(mpi_rank == 0)
       {
+      #endif
         if(exportResults(outputFilePath_buff, dataPoints, dataSetSize, centroids,
             numClusters)
             != FILE_OK)
@@ -133,7 +151,9 @@ int main(int argc, char *argv[])
       //     }
       //     printf("\n");
       //   }
+      #if MPI == 1
       }
+      #endif
 
       // free memory
       freeCentroids(centroids, numClusters);
@@ -144,6 +164,9 @@ int main(int argc, char *argv[])
     freePoints(dataPoints, dataSetSize);
 
   } /* end else from command line arg parsing */
+
+  double TimeE= MPI_Wtime();
+  printf("Runtime: %.6f seconds\n", TimeE - Time0);
 
   return 0; // return successful operation
 }

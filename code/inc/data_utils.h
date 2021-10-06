@@ -48,7 +48,6 @@ void fillPoints(double **data, int size, int dim, Point *pointList);
 void freePoints(Point *pointList, int num);
 void freeCentroids(Centroid *centroidList, int num);
 void freeDataset(double **data, int num);
-void centrToPoint(Centroid *centroids, int size, Point *returnPoints);
 double calcSquaredEuclideanDist(Point point, Centroid centroid);
 void primeCentroid(Centroid *centroidList, int listSize);
 bool checkConvergence(Centroid *centrList, int centrList_size);
