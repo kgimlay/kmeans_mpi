@@ -45,9 +45,7 @@ void groupCentroids(Centroid *centroids, int size, int num_groups)
 void run_lin_yin(Point *pointList, int pointList_size, Centroid *centrList,
                     int centrList_size, int numGroups, int maxIter)
 {
-  // local groups
-  // Centroid *groups = (Centroid *)malloc(sizeof(Centroid *) * numGroups);
-  // makeCentroids(groups, numGroups, centrList[0].dim);
+
 
   // select starting points for centroids
   startCentroids(centrList, centrList_size, pointList, pointList_size);
