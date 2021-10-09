@@ -6,5 +6,5 @@
 for i in $(seq 0 100)
 do
   echo $i
-  ./kmeans SEQ_YINYANG ./datasets/M2.csv 1000000 2 5 ./output/
+  ./kmeans ./datasets/M2.csv 100 2 SEQ_LLOYD 5
 done

@@ -6,7 +6,7 @@
 /*
 
 */
-FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fileName)
+FILE_CODE importDataset(double *dataset, int dataSize, int dimension, char *fileName)
 {
   // operation variables
   char lineBuffer[FILE_LINE_BUFF_SIZE];
@@ -36,7 +36,8 @@ FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fil
     elemToken = strtok(lineBuffer, dataDelimiter);
     for(colCnt = 0; colCnt < dimension && elemToken != NULL; colCnt++)
     {
-      dataset[rowCnt][colCnt] = atof(elemToken); // figure out work around for return 0.0 if can't parse
+      // dataset[rowCnt][colCnt] = atof(elemToken); // figure out work around for return 0.0 if can't parse
+      dataset[rowCnt * dimension + colCnt] = atof(elemToken); // figure out work around for return 0.0 if can't parse
       elemToken = strtok(NULL, dataDelimiter);
     }
 

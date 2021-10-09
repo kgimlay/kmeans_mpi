@@ -6,7 +6,7 @@
 /*
 
 */
-void run_lin_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
+void run_seq_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
                     int centrList_size, int maxIter)
 {
   // select starting points for centroids

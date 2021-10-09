@@ -32,7 +32,7 @@ typedef enum
 } FILE_CODE;
 
 // function prototypes
-FILE_CODE importDataset(double **dataset, int dimension, int dataSize, char *fileName);
+FILE_CODE importDataset(double *dataset, int dataSize, int dimension, char *fileName);
 FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName);
 FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *centroids,
   int numCentroids);

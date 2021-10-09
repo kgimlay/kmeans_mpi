@@ -7,166 +7,81 @@
 */
 int main(int argc, char *argv[])
 {
-  double Time0 = MPI_Wtime();
-
   // operation variables
-  ALGO_CODE algo_select;
-  char dataFilePath_buff[MAX_STR_BUFF_SIZE];
-  char outputFilePath_buff[MAX_STR_BUFF_SIZE];
-  int dataSetSize = 0;
-  int dataDimensionality = 0;
-  int numClusters = 0;
-  int maxIterations = DEFAULT_MAX_ITERATIONS;
-  Point *dataPoints;
-  Centroid *centroids;
-  double **dataset;
-  #if MPI == 1
   int mpi_numProc;
   int mpi_rank;
-  #endif
+  int data_size;
+  int data_dim;
+  int num_clusters;
+  int num_groups;
+  int maxIterations = DEFAULT_MAX_ITERATIONS;
+  char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
+  char *outputFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
+  ALGO_CODE algo_select;
+  CentroidData_t *centroids;
+  PointData_t *points;
+
+  /* Init MPI */
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
   // get command line arguments
-  if (!parse_commandline(argc, argv, &algo_select, dataFilePath_buff, &dataSetSize,
-    &dataDimensionality, &numClusters, &maxIterations, outputFilePath_buff))
+  if (!parse_commandline(argc, argv, &data_size, &data_dim,
+    &num_clusters, dataFilePath_buff, &maxIterations, outputFilePath_buff,
+    &algo_select))
   {
-    printf("%s\n", "Terminating program.");
+    printf("Command line parse failed, shutting down.\n");
+    return 1;
   }
 
-  /* command line parsing successful, continue */
+  // command line parsing successful, allocate memory for point and centroid data
+  centroids = (CentroidData_t*)malloc(sizeof(CentroidData_t) * data_size);
+  points = (PointData_t*)malloc(sizeof(PointData_t) * num_clusters);
+  makeCentroids(centroids, num_clusters, data_dim);
+  makePoints(points, data_size, data_dim);
+
+  // import the dataset into the pointData struct
+  importDataset(points->coords, data_size, data_dim, dataFilePath_buff);
+
+  // setup complete, call algorithm for execution
+  if (algo_select == SEQ_LLOYD)
+  {
+    run_seq_lloyd(dataPoints, data_size, centroids, num_groups, maxIterations);
+  }
+  // else if (algo_select == MPI_LLOYD)
+  // {
+  //   run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
+  //                   maxIterations, mpi_numProc, mpi_rank);
+  // }
+  // else if (algo_select == SEQ_YINYANG)
+  // {
+  //   run_lin_yin(dataPoints, dataSetSize, centroids, numClusters,
+  //                   3, maxIterations);
+  // }
+  // else if (algo_select == MPI_YINYANG)
+  // {
+  //   run_mpi_yin(dataPoints, dataSetSize, centroids, numClusters,
+  //                   maxIterations, mpi_numProc, mpi_rank);
+  // }
   else
   {
-    // import dataset from file
-    dataPoints = (Point *)malloc(sizeof(Point) * dataSetSize);
-    makePoints(dataPoints, dataSetSize, dataDimensionality);
-    dataset = (double **)malloc(sizeof(double *) * dataSetSize);
-    for(int i = 0; i < dataSetSize; i++)
-    {
-      dataset[i] = (double *)malloc(sizeof(double) * dataDimensionality);
-    }
-    if(importDataset(dataset, dataDimensionality, dataSetSize, dataFilePath_buff)
-        != FILE_OK)
-    {
-      printf("File could not be read!\n");
-    }
+    printf("Uh oh! [kmeans_mpi_main.c]\n");
+  }
 
-    /* File read successful */
-    else
-    {
-      // make data points
-      fillPoints(dataset, dataSetSize, dataDimensionality, dataPoints);
-      // make centroids
-      centroids = (Centroid *)malloc(sizeof(Centroid) * numClusters);
-      makeCentroids(centroids, numClusters, dataDimensionality);
+  // save results, if output specified
+  if (strlen(outputFilePath_buff) != 0)
+  {
+    // TODO: file output
+  }
 
-      /* BEGIN MPI SECTION */
+  /* Deinit MPI */
+  MPI_Finalize();
 
-      // init MPI and get rank and number of processes
-      #if MPI == 1
-      MPI_Init(&argc, &argv);
-      MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
-      MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-      #endif
-
-      // start the algorithm selected
-      double sTime = MPI_Wtime();
-
-      switch (algo_select) {
-        case SEQ_LLOYD:
-        {
-          run_lin_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-                          maxIterations);
-          break;
-        }
-
-        #if MPI == 1
-        case MPI_LLOYD:
-        {
-          run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-                          maxIterations, mpi_numProc, mpi_rank);
-          break;
-        }
-        #endif
-
-        case SEQ_YINYANG:
-        {
-          run_lin_yin(dataPoints, dataSetSize, centroids, numClusters,
-                          3, maxIterations);
-          break;
-        }
-
-        #if MPI == 1
-        case MPI_YINYANG:
-        {
-          run_mpi_yin(dataPoints, dataSetSize, centroids, numClusters,
-                          maxIterations, mpi_numProc, mpi_rank);
-          break;
-        }
-        #endif
-
-        default:
-        {
-          // should never get here!
-          printf("Uh oh! [kmeans_mpi_main.c]\n");
-          break;
-        }
-      }
-
-      double eTime = MPI_Wtime();
-      #if MPI == 1
-      if (mpi_rank == 0)
-      {
-      #endif
-        printf("Runtime: %.6f seconds\n", eTime - sTime);
-      #if MPI == 1
-      }
-      #endif
-
-      // end mpi
-      #if MPI == 1
-      MPI_Finalize();
-      #endif
-
-      /* END MPI SECTION */
-
-      // save results to files
-      #if MPI == 1
-      if(mpi_rank == 0)
-      {
-      #endif
-        if(exportResults(outputFilePath_buff, dataPoints, dataSetSize, centroids,
-            numClusters)
-            != FILE_OK)
-        {
-          printf("File could not be written!\n");
-        }
-
-        // report centroid locations
-      //   printf("Centroids:\n");
-      //   for (int i = 0; i < numClusters; i++)
-      //   {
-      //     printf("centroid %d: ", i);
-      //     for (int j = 0; j < dataDimensionality; j++)
-      //     {
-      //       printf("%.3f, ", centroids[i].coords[j]);
-      //     }
-      //     printf("\n");
-      //   }
-      #if MPI == 1
-      }
-      #endif
-
-      // free memory
-      freeCentroids(centroids, numClusters);
-    }
-
-    // free memory
-    freeDataset(dataset, dataSetSize);
-    freePoints(dataPoints, dataSetSize);
-
-  } /* end else from command line arg parsing */
-
-  double TimeE= MPI_Wtime();
-  printf("Runtime: %.6f seconds\n", TimeE - Time0);
-
+  // shut down
+  freePoints(points, data_size);
+  freeCentroids(centroids, num_clusters);
+  free(dataFilePath_buff);
+  free(outputFilePath_buff);
   return 0; // return successful operation
 }

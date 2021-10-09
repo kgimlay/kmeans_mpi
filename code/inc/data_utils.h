@@ -11,7 +11,14 @@
 #include <mpi.h>
 #include "parameters.h"
 
-// typedefs
+
+/* ----- Defines ----- */
+
+
+
+
+
+/* ----- typedefs ----- */
 
 
 // N-Dimensional Centroid (Centroid)
@@ -41,12 +48,48 @@ typedef struct NDim_Data_Point {
 } Point;
 
 
-// function prototypes
-void makePoints(Point *pointList, int size, int dim);
-void makeCentroids(Centroid *centroidList, int num, int dim);
+// Centroid structure
+// stores the centroid coords in a two dimensional array (allocated contiguously)
+// stores the previous coords in a two diemnsional array (allocated contiguously)
+// stores the dimension of the centroids (same for all)
+// stores a list of the sizes (number of points in each centroid's group)
+// stores the group ID (yinyang)
+// stores the max drift (yinyang)
+typedef struct {
+  int k;
+  int dim;
+  int *groupID;             // needs to be allocated to size k
+  int *sizes;               // needs to be allocated to size k
+  double *coords;           // needs to be allocated to size k*dim
+  double *prevCoords;       // needs to be allocated to size k*dim
+  double *maxDrift;         // needs to be allocated to size k
+} CentroidData_t;
+
+
+// Datapoint structure
+// stores the data point coords in a two dimensional array (allocated contiguously)
+// stores list of corresponding centroid IDs (index of centroid list)
+// stores dimension of data points (same for all)
+// stores an upper and lower bound for each point (for yinyang)
+// point ID is implicit as row index of coords
+typedef struct {
+  int n;
+  int dim;
+  int *centroid;            // needs to be allocated to size n
+  double *coords;           // needs to be allocated to size n*dim
+  double *lb;               // needs to be allocated to size n
+  double *ub;               // needs to be allocated to size n
+} PointData_t;
+
+
+/* ----- function prototypes ----- */
+
+
+void makePoints(PointData_t *pointStruct, int n, int dim);
+void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
 void fillPoints(double **data, int size, int dim, Point *pointList);
-void freePoints(Point *pointList, int num);
-void freeCentroids(Centroid *centroidList, int num);
+void freePoints(PointData_t *pointList, int n);
+void freeCentroids(CentroidData_t *centroidList, int k);
 void freeDataset(double **data, int num);
 double calcSquaredEuclideanDist(Point point, Centroid centroid);
 void primeCentroid(Centroid *centroidList, int listSize);

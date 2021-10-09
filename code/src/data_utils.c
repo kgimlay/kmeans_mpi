@@ -3,66 +3,58 @@
 #include "../inc/data_utils.h"
 
 
-void makePoints(Point *pointList, int size, int dim)
+void makePoints(PointData_t *pointStruct, int n, int dim)
 {
-  // allocate points
-  for(int i = 0; i < size; i++)
-  {
-    pointList[i] = *(Point *)malloc(sizeof(Point));
-    pointList[i].id = i;
-    pointList[i].dim = dim;
-    pointList[i].coords = (double *)calloc(dim, sizeof(double));
-    pointList[i].centroid = NULL;
-    pointList[i].ub = 0.0;
-    pointList[i].lb = 0.0;
-  }
-}
+  // allocate lists
+  pointStruct->centroid = (int*)malloc(sizeof(int) * n);
+  pointStruct->coords   = (double*)malloc(sizeof(double) * n * dim);
+  pointStruct->lb       = (double*)malloc(sizeof(int) * n);
+  pointStruct->ub       = (double*)malloc(sizeof(int) * n);
 
-void fillPoints(double **data, int size, int dim, Point *pointList)
-{
-  for(int i = 0; i < size; i++)
-  {
-    for(int j = 0; j < dim; j++)
-    {
-      pointList[i].coords[j] = data[i][j];
-    }
-  }
+  // assign values
+  pointStruct->n        = n;
+  pointStruct->dim      = dim;
 }
 
 
-void makeCentroids(Centroid *centroidList, int num, int dim)
+void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
 {
-  // allocate centroids
-  for(int i = 0; i < num; i++)
-  {
-    centroidList[i].id = i;
-    centroidList[i].dim = dim;
-    centroidList[i].coords = (double *)calloc(dim, sizeof(double));
-    centroidList[i].prevCoords = (double *)calloc(dim, sizeof(double));
-    centroidList[i].size = 0;
-    centroidList[i].drift = 0.0;
-    centroidList[i].groupId = -1;
-  }
+  // allocate lists
+  centroidStruct->groupID    = (int*)malloc(sizeof(int) * k);
+  centroidStruct->sizes      = (int*)malloc(sizeof(int) * k);
+  centroidStruct->coords     = (double*)malloc(sizeof(double) * k * dim);
+  centroidStruct->prevCoords = (double*)malloc(sizeof(double) * k * dim);
+  centroidStruct->maxDrift   = (double*)malloc(sizeof(int) * k);
+
+  // assign values
+  centroidStruct->k          = k;
+  centroidStruct->dim        = dim;
 }
 
 
-void freePoints(Point *pointList, int num)
+void freePoints(PointData_t *pointList, int n)
 {
-  for(int i = 0; i < num; i++)
-  {
-    free(pointList[i].coords);
-  }
+  // free pointList fields
+  free(pointList->centroid);
+  free(pointList->coords);
+  free(pointList->lb);
+  free(pointList->ub);
+
+  // free pointList
   free(pointList);
 }
 
 
-void freeCentroids(Centroid *centroidList, int num)
+void freeCentroids(CentroidData_t *centroidList, int k)
 {
-  for(int i = 0; i < num; i++)
-  {
-    free(centroidList[i].coords);
-    free(centroidList[i].prevCoords);
-  }
+  // free centroidList fields
+  free(centroidList->groupID);
+  free(centroidList->sizes);
+  free(centroidList->coords);
+  free(centroidList->prevCoords);
+  free(centroidList->maxDrift);
+
+  // free centroidList
   free(centroidList);
 }
 
