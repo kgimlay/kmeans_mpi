@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
   char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
   char *outputFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
   ALGO_CODE algo_select;
-  CentroidData_t *centroids;
-  PointData_t *points;
+  CentroidData_t centroids;
+  PointData_t points;
 
   /* Init MPI */
   MPI_Init(&argc, &argv);
@@ -36,33 +36,28 @@ int main(int argc, char *argv[])
   }
 
   // command line parsing successful, allocate memory for point and centroid data
-  centroids = (CentroidData_t*)malloc(sizeof(CentroidData_t) * data_size);
-  points = (PointData_t*)malloc(sizeof(PointData_t) * num_clusters);
-  makeCentroids(centroids, num_clusters, data_dim);
-  makePoints(points, data_size, data_dim);
+  makeCentroids(&centroids, num_clusters, data_dim);
+  makePoints(&points, data_size, data_dim);
 
   // import the dataset into the pointData struct
-  importDataset(points->coords, data_size, data_dim, dataFilePath_buff);
+  importDataset(points.coords, data_size, data_dim, dataFilePath_buff);
 
   // setup complete, call algorithm for execution
   if (algo_select == SEQ_LLOYD)
   {
-    run_seq_lloyd(dataPoints, data_size, centroids, num_groups, maxIterations);
+    run_seq_lloyd(&points, &centroids, maxIterations);
   }
-  // else if (algo_select == MPI_LLOYD)
-  // {
-  //   run_mpi_lloyd(dataPoints, dataSetSize, centroids, numClusters,
-  //                   maxIterations, mpi_numProc, mpi_rank);
-  // }
+  else if (algo_select == MPI_LLOYD)
+  {
+    run_mpi_lloyd(&points, &centroids, maxIterations, mpi_numProc, mpi_rank);
+  }
   // else if (algo_select == SEQ_YINYANG)
   // {
-  //   run_lin_yin(dataPoints, dataSetSize, centroids, numClusters,
-  //                   3, maxIterations);
+  //   run_lin_yin(dataPoints, centroids, numClusters, maxIterations);
   // }
   // else if (algo_select == MPI_YINYANG)
   // {
-  //   run_mpi_yin(dataPoints, dataSetSize, centroids, numClusters,
-  //                   maxIterations, mpi_numProc, mpi_rank);
+  //   run_mpi_yin(dataPoints, centroids, maxIterations, mpi_numProc, mpi_rank);
   // }
   else
   {
@@ -70,9 +65,25 @@ int main(int argc, char *argv[])
   }
 
   // save results, if output specified
-  if (strlen(outputFilePath_buff) != 0)
+  if (strlen(outputFilePath_buff) != 0 && mpi_rank == 0)
   {
     // TODO: file output
+    for (int i = 0; i < centroids.k; i++)
+    {
+      printf("Centroid %d: ", i);
+      for (int j = 0; j < centroids.dim; j++)
+      {
+        printf("%.4f, ", centroids.coords[i * centroids.dim + j]);
+      }
+      printf("\n");
+    }
+    // printf("\n");
+    // for (int i = 0; i < points->n; i++)
+    // {
+    //   printf("Point %d: ", i);
+    //   printf("%d, ", points->centroid[i]);
+    //   printf("\n");
+    // }
   }
 
   /* Deinit MPI */

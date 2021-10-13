@@ -6,30 +6,27 @@
 /*
 
 */
-void run_seq_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
-                    int centrList_size, int maxIter)
+void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIter)
 {
   // select starting points for centroids
-  startCentroids(centrList, centrList_size, pointList, pointList_size);
+  startCentroids(centrList, pointList);
 
   // while no convergence and not at max iterations
   for(int iterationCntr = 0; iterationCntr < maxIter; iterationCntr++)
   {
     // prime centroids for next iteration
-    primeCentroid(centrList, centrList_size);
+    primeCentroid(centrList);
 
 
     // re-member points to clusters
-    updatePointClusterMembership(pointList, pointList_size,
-                                  centrList, centrList_size);
+    updatePointClusterMembership(pointList, centrList);
 
 
     // recalculate center of clusters
-    updateCentroids(pointList, pointList_size,
-                    centrList, centrList_size);
+    updateCentroids(centrList, pointList);
 
     // check for convergence
-    if (checkConvergence(centrList, centrList_size))
+    if (checkConvergence(centrList))
     {
       break;
     }

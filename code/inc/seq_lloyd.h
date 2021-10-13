@@ -12,8 +12,7 @@
 
 
 // function prototypes
-void run_seq_lloyd(Point *pointList, int pointList_size, Centroid *centrList,
-                    int centrList_size, int maxIter);
+void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIter);
 
 
 #endif

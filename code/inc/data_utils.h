@@ -88,20 +88,17 @@ typedef struct {
 void makePoints(PointData_t *pointStruct, int n, int dim);
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
 void fillPoints(double **data, int size, int dim, Point *pointList);
-void freePoints(PointData_t *pointList, int n);
-void freeCentroids(CentroidData_t *centroidList, int k);
-void freeDataset(double **data, int num);
-double calcSquaredEuclideanDist(Point point, Centroid centroid);
-void primeCentroid(Centroid *centroidList, int listSize);
-bool checkConvergence(Centroid *centrList, int centrList_size);
-void updatePointClusterMembership(Point *pointList, int pointListSize,
-                                  Centroid *centroidList, int centroidlistSize);
-void updateCentroids(Point *pointList, int pointListSize,
-                      Centroid *centroidList, int centroidlistSize);
-void startCentroids(Centroid *centrList, int centrListSize,
-                    Point *pointList, int pointListSize);
-void updateCentroids_MPI(Point *pointSublist, int pointSublist_size,
-                      Centroid *centrList, int centrList_size,
+void freePoints(PointData_t pointList, int n);
+void freeCentroids(CentroidData_t centroidList, int k);
+double calcSquaredEuclideanDist(PointData_t *points, int pointId,
+                                CentroidData_t *centroids, int centroidId);
+void primeCentroid(CentroidData_t *centroidList);
+bool checkConvergence(CentroidData_t *centrList);
+void updatePointClusterMembership(PointData_t *pointList,
+                                  CentroidData_t *centroidList);
+void updateCentroids(CentroidData_t *centrList, PointData_t *pointList);
+void startCentroids(CentroidData_t *centrList, PointData_t *pointList);
+void updateCentroids_MPI(PointData_t *pointSublist, CentroidData_t *centrList,
                       int mpi_rank, int mpi_numProc, double *mpiCentrDataList,
                       int mpiCentrDataList_width);
 

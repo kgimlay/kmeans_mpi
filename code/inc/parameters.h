@@ -6,7 +6,7 @@
 
 // enable verbose printing of operation
 // will decrease performance, set to 0 for time critical
-#define VERBOSE 1
+#define VERBOSE 0
 
 // enable debug printing statements
 // will decrease performance, set to 0 for time critical
