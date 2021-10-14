@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
   CentroidData_t centroids;
   PointData_t points;
   SaveOptions_t sOptions;
+  TimeData_t time;
 
   /* Init MPI */
   MPI_Init(&argc, &argv);
@@ -41,6 +42,9 @@ int main(int argc, char *argv[])
   // import the dataset into the pointData struct
   importCsv_double(points.coords, data_size, data_dim, dataFilePath_buff);
 
+  // start timing algo
+  time.algoStartTime = wallTime();
+
   // setup complete, call algorithm for execution
   if (algo_select == SEQ_LLOYD)
   {
@@ -61,7 +65,11 @@ int main(int argc, char *argv[])
   else
   {
     printf("Uh oh! Algo not available! [kmeans_mpi_main.c]\n");
+    return 1;
   }
+
+  // end timing algo
+  time.algoEndTime = wallTime();
 
   // save results, if output specified
   if (mpi_rank == 0 && strlen(sOptions.path) != 0)
@@ -88,8 +96,8 @@ int main(int argc, char *argv[])
       char fileNamePath[MAX_STR_BUFF_SIZE];
       strcpy(fileNamePath, sOptions.path);
       strcat(fileNamePath, "time_metrics.csv");
-      // exportCsv_double(/*--time array--*/, centroids.k, centroids.dim, fileNamePath);
-      printf("Time export not implemented yet!\n");
+      double timeArr[1] = {deltaTime(time.algoStartTime, time.algoEndTime)};
+      exportCsv_double(timeArr, 1, 1, fileNamePath);
     }
   }
 

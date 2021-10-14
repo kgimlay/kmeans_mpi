@@ -12,6 +12,7 @@
 #include "data_utils.h"
 #include "parameters.h"
 #include "command_line_utils.h"
+#include "time_utils.h"
 #include "seq_lloyd.h"
 #include "mpi_lloyd.h"
 #include "seq_yinyang.h"
