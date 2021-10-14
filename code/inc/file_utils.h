@@ -18,8 +18,8 @@
 // separate from MAX_STR_BUFF_SIZE
 // max buffer size for reading file
 #define FILE_LINE_BUFF_SIZE 4096
-
 #define POINT_ASSIGNMENT_CSV "point_assignment.csv"
+#define DOUBLE_EXP_PRECISION_FORMAT "%.14f"
 
 // enums
 
@@ -32,9 +32,8 @@ typedef enum
 } FILE_CODE;
 
 // function prototypes
-FILE_CODE importDataset(double *dataset, int dataSize, int dimension, char *fileName);
-FILE_CODE exportCsv(double **outset, int numRow, int numCol, char *fileName);
-FILE_CODE exportResults(char *outDir, Point *pointList, int size, Centroid *centroids,
-  int numCentroids);
+FILE_CODE importCsv_double(double *dataset, int numRow, int numCol, char *fileName);
+FILE_CODE exportCsv_double(double *outset, int numRow, int numCol, char *fileName);
+FILE_CODE exportCsv_int(int *outset, int numRow, int numCol, char *fileName);
 
 #endif

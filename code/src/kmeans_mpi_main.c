@@ -13,13 +13,12 @@ int main(int argc, char *argv[])
   int data_size;
   int data_dim;
   int num_clusters;
-  int num_groups;
   int maxIterations = DEFAULT_MAX_ITERATIONS;
   char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
-  char *outputFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
   ALGO_CODE algo_select;
   CentroidData_t centroids;
   PointData_t points;
+  SaveOptions_t sOptions;
 
   /* Init MPI */
   MPI_Init(&argc, &argv);
@@ -27,9 +26,9 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
   // get command line arguments
+  makeSaveOptions(&sOptions);
   if (!parse_commandline(argc, argv, &data_size, &data_dim,
-    &num_clusters, dataFilePath_buff, &maxIterations, outputFilePath_buff,
-    &algo_select))
+    &num_clusters, dataFilePath_buff, &maxIterations, &sOptions, &algo_select))
   {
     printf("Command line parse failed, shutting down.\n");
     return 1;
@@ -40,7 +39,7 @@ int main(int argc, char *argv[])
   makePoints(&points, data_size, data_dim);
 
   // import the dataset into the pointData struct
-  importDataset(points.coords, data_size, data_dim, dataFilePath_buff);
+  importCsv_double(points.coords, data_size, data_dim, dataFilePath_buff);
 
   // setup complete, call algorithm for execution
   if (algo_select == SEQ_LLOYD)
@@ -61,29 +60,37 @@ int main(int argc, char *argv[])
   // }
   else
   {
-    printf("Uh oh! [kmeans_mpi_main.c]\n");
+    printf("Uh oh! Algo not available! [kmeans_mpi_main.c]\n");
   }
 
   // save results, if output specified
-  if (strlen(outputFilePath_buff) != 0 && mpi_rank == 0)
+  if (mpi_rank == 0 && strlen(sOptions.path) != 0)
   {
-    // TODO: file output
-    for (int i = 0; i < centroids.k; i++)
+    if (sOptions.options.outPoints)
     {
-      printf("Centroid %d: ", i);
-      for (int j = 0; j < centroids.dim; j++)
-      {
-        printf("%.4f, ", centroids.coords[i * centroids.dim + j]);
-      }
-      printf("\n");
+      // save point assignemnt
+      char fileNamePath[MAX_STR_BUFF_SIZE];
+      strcpy(fileNamePath, sOptions.path);
+      strcat(fileNamePath, "point_assignment.csv");
+      exportCsv_int(points.centroid, points.n, 1, fileNamePath);
     }
-    // printf("\n");
-    // for (int i = 0; i < points->n; i++)
-    // {
-    //   printf("Point %d: ", i);
-    //   printf("%d, ", points->centroid[i]);
-    //   printf("\n");
-    // }
+    if (sOptions.options.outCentroids)
+    {
+      // save centroid coords
+      char fileNamePath[MAX_STR_BUFF_SIZE];
+      strcpy(fileNamePath, sOptions.path);
+      strcat(fileNamePath, "centroid_coords.csv");
+      exportCsv_double(centroids.coords, centroids.k, centroids.dim, fileNamePath);
+    }
+    if (sOptions.options.outTime)
+    {
+      // save time information
+      char fileNamePath[MAX_STR_BUFF_SIZE];
+      strcpy(fileNamePath, sOptions.path);
+      strcat(fileNamePath, "time_metrics.csv");
+      // exportCsv_double(/*--time array--*/, centroids.k, centroids.dim, fileNamePath);
+      printf("Time export not implemented yet!\n");
+    }
   }
 
   /* Deinit MPI */
@@ -92,7 +99,8 @@ int main(int argc, char *argv[])
   // shut down
   freePoints(points, data_size);
   freeCentroids(centroids, num_clusters);
+  freeSaveOptions(sOptions);
   free(dataFilePath_buff);
-  free(outputFilePath_buff);
+
   return 0; // return successful operation
 }

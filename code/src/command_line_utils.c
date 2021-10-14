@@ -2,41 +2,40 @@
 
 #include "../inc/command_line_utils.h"
 
+const static char cmd_line_help_str_format[200] = "<Required> <Optional>\n" \
+  "Required: <data path> <data size> <data dim> %s|%s|%s|%s <cluster num>\n" \
+  "Optional: %s <max iterations> %s[%s,%s,%s] <output path>";
 
 /*
-Command Line Arguments:
-  Required: <data path> <data size> <data dim> <algo> <num cluster>
-  Optional: -o <output path>
-            -i <max iterations>
-Required arguments first, order matters. Optional follows, order does not matter.
+
 */
 bool parse_commandline(int argc, char *argv[], int *dataSize, int *dataDim,
-  int *numClust, char *datasetFilePath, int *itrMax, char *outputFilePath,
-  ALGO_CODE *algo_select)
+  int *numClust, char *datasetFilePath, int *itrMax,
+  SaveOptions_t *fileOutputOptions, ALGO_CODE *algo_select)
 {
   // operation variables
   char algo_buff[MAX_STR_BUFF_SIZE];
+  char cmd_line_help_str[200];
+
+  // format command line help string
+  sprintf(cmd_line_help_str, cmd_line_help_str_format,
+          SEQ_LLOYD__STR, MPI_LLOYD__STR, SEQ_YINYANG__STR, MPI_YINYANG__STR,
+          MAX_ITR_FLAG, OUTPUT_FLAG, OUTPUT_PONT, OUTPUT_CENT, OUTPUT_TIME);
 
   // verify correct number of command line arguments
   if (argc < NUM_REQ_CMD_ARGS + 1)
   {
-    printf("Too few command line arguments!\n\n%s\n\n", "Required: <data path>"\
-      " <data size> <data dim> <algo> <cluster num>\n" \
-      "Optional: -o <output path> -i <max iterations>");
+    printf("Too few command line arguments!\n\n%s\n\n", cmd_line_help_str);
     return false;
   }
   if (argc > NUM_REQ_CMD_ARGS + (NUM_OPT_CMD_ARGS * 2) + 1)
   {
-    printf("Too many command line arguments!\n\n%s\n\n", "Required: <data path>"\
-      " <data size> <data dim> <algo> <cluster num>\n" \
-      "Optional: -o <output path> -i <max iterations>");
+    printf("Too many command line arguments!\n\n%s\n\n", cmd_line_help_str);
     return false;
   }
   if ((argc - NUM_REQ_CMD_ARGS) % 2 != 1)
   {
-    printf("Incomplete optional arguments!\n\n%s\n\n", "Required: <data path>"\
-      " <data size> <data dim> <algo> <cluster num>\n" \
-      "Optional: -o <output path> -i <max iterations>");
+    printf("Incomplete optional arguments!\n\n%s\n\n", cmd_line_help_str);
     return false;
   }
 
@@ -56,10 +55,33 @@ bool parse_commandline(int argc, char *argv[], int *dataSize, int *dataDim,
   // optional parameters
   for (int i = 0; i < argc - NUM_REQ_CMD_ARGS - 1; i += 2)
   {
-    if (!strcmp(argv[NUM_REQ_CMD_ARGS + 1 + i], "-o"))  // output flag
+    if (strstr(argv[NUM_REQ_CMD_ARGS + 1 + i], OUTPUT_FLAG))  // output flag
     {
-      sscanf(argv[NUM_REQ_CMD_ARGS + 2 + i], "%s", outputFilePath);
-      // printf("%s\n", outputFilePath);
+      sscanf(argv[NUM_REQ_CMD_ARGS + 2 + i], "%s", fileOutputOptions->path);
+      // check for arguments of what to output
+      bool arg_provided_flg = false;
+      if (strstr(argv[NUM_REQ_CMD_ARGS + 1 + i], OUTPUT_TIME))
+      {
+        arg_provided_flg = true;
+        fileOutputOptions->options.outTime = true;
+      }
+      if (strstr(argv[NUM_REQ_CMD_ARGS + 1 + i], OUTPUT_CENT))
+      {
+        arg_provided_flg = true;
+        fileOutputOptions->options.outCentroids = true;
+      }
+      if (strstr(argv[NUM_REQ_CMD_ARGS + 1 + i], OUTPUT_PONT))
+      {
+        arg_provided_flg = true;
+        fileOutputOptions->options.outPoints = true;
+      }
+      // if no additional flag arguments provided, output all
+      if (!arg_provided_flg)
+      {
+        fileOutputOptions->options.outTime = true;
+        fileOutputOptions->options.outCentroids = true;
+        fileOutputOptions->options.outPoints = true;
+      }
     }
     else if (!strcmp(argv[NUM_REQ_CMD_ARGS + 1 + i], "-i"))  // max iteration flag
     {

@@ -24,37 +24,6 @@
 // N-Dimensional Centroid (Centroid)
 // A centroid has a dimension and its coordinates
 // Note that a centroid (cluster) does not need any points assiciated with it
-typedef struct NDim_Centroid {
-  int id;               // cluster ID
-  int dim;              // dimensionality of the data
-  double *coords;       // center of the cluster
-  double *prevCoords;   // previous center of the cluster
-  double drift;         // distance between the current and previous coords
-  int size;             // number of points in membership with cluster
-  int groupId;          // group membership
-} Centroid;
-
-
-// N_Dimensional Data Point (Point)
-// A point has a dimension, it's coordinates, and a centroid it's associated
-// with. Note that a point always belongs to a centroid (cluster)
-typedef struct NDim_Data_Point {
-  int id;               // point id
-  int dim;              // dimensionality of the data
-  double *coords;       // coordinates of the data point
-  Centroid *centroid;   // cluster membership
-  double lb;            // lower bound (for yinyang)
-  double ub;            // upper bound (for yinyang)
-} Point;
-
-
-// Centroid structure
-// stores the centroid coords in a two dimensional array (allocated contiguously)
-// stores the previous coords in a two diemnsional array (allocated contiguously)
-// stores the dimension of the centroids (same for all)
-// stores a list of the sizes (number of points in each centroid's group)
-// stores the group ID (yinyang)
-// stores the max drift (yinyang)
 typedef struct {
   int k;
   int dim;
@@ -66,12 +35,9 @@ typedef struct {
 } CentroidData_t;
 
 
-// Datapoint structure
-// stores the data point coords in a two dimensional array (allocated contiguously)
-// stores list of corresponding centroid IDs (index of centroid list)
-// stores dimension of data points (same for all)
-// stores an upper and lower bound for each point (for yinyang)
-// point ID is implicit as row index of coords
+// N_Dimensional Data Point (Point)
+// A point has a dimension, it's coordinates, and a centroid it's associated
+// with. Note that a point always belongs to a centroid (cluster)
 typedef struct {
   int n;
   int dim;
@@ -82,14 +48,32 @@ typedef struct {
 } PointData_t;
 
 
+// Output Options
+// stores options for what informaiton to output
+typedef struct {
+  bool outPoints;           // output point assignemnts
+  bool outCentroids;        // output centroid coordinates
+  bool outTime;             // output time information
+} OutputOptions_t;
+
+
+// File Output Options
+// Stores options for file output such as output path and what files to output
+typedef struct {
+  char *path;               // parent folder to output files to
+  OutputOptions_t options; // options on what to output
+} SaveOptions_t;
+
+
 /* ----- function prototypes ----- */
 
 
 void makePoints(PointData_t *pointStruct, int n, int dim);
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
-void fillPoints(double **data, int size, int dim, Point *pointList);
+void makeSaveOptions(SaveOptions_t *saveOptions);
 void freePoints(PointData_t pointList, int n);
 void freeCentroids(CentroidData_t centroidList, int k);
+void freeSaveOptions(SaveOptions_t saveOptions);
 double calcSquaredEuclideanDist(PointData_t *points, int pointId,
                                 CentroidData_t *centroids, int centroidId);
 void primeCentroid(CentroidData_t *centroidList);

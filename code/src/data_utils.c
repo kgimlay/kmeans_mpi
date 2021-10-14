@@ -32,6 +32,18 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
 }
 
 
+void makeSaveOptions(SaveOptions_t *saveOptions)
+{
+  // allocate file path
+  saveOptions->path = (char*)malloc(sizeof(char) * MAX_STR_BUFF_SIZE);
+
+  // reset flags
+  saveOptions->options.outPoints = false;
+  saveOptions->options.outCentroids = false;
+  saveOptions->options.outTime = false;
+}
+
+
 void freePoints(PointData_t pointList, int n)
 {
   // free pointList fields
@@ -50,6 +62,13 @@ void freeCentroids(CentroidData_t centroidList, int k)
   free(centroidList.coords);
   free(centroidList.prevCoords);
   free(centroidList.maxDrift);
+}
+
+
+void freeSaveOptions(SaveOptions_t saveOptions)
+{
+  // free output path buffer
+  free(saveOptions.path);
 }
 
 

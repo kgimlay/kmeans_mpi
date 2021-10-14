@@ -2,12 +2,6 @@
 
 #include "../inc/utils.h"
 
-// strings
-char *lin_lloyd_str = "SEQ_LLOYD\0";
-char *mpi_lloyd_str = "MPI_LLOYD\0";
-char *lin_yinyang_str = "SEQ_YINYANG\0";
-char *mpi_yinyang_str = "MPI_YINYANG\0";
-
 
 /*
 
@@ -15,24 +9,24 @@ char *mpi_yinyang_str = "MPI_YINYANG\0";
 bool str_to_algo(char *input, ALGO_CODE *algo)
 {
   // linear lloyd algo
-  if (!strcmp(input, lin_lloyd_str)) {
+  if (!strcmp(input, SEQ_LLOYD__STR)) {
     *algo = SEQ_LLOYD;
   }
 
   // mpi lloyd algo
-  else if (!strcmp(input, mpi_lloyd_str))
+  else if (!strcmp(input, MPI_LLOYD__STR))
   {
     *algo = MPI_LLOYD;
   }
 
   // seq yinyang algo
-  else if (!strcmp(input, lin_yinyang_str))
+  else if (!strcmp(input, SEQ_YINYANG__STR))
   {
     *algo = SEQ_YINYANG;
   }
 
   // mpi yinyang algo
-  else if (!strcmp(input, mpi_yinyang_str))
+  else if (!strcmp(input, MPI_YINYANG__STR))
   {
     *algo = MPI_YINYANG;
   }
@@ -54,22 +48,22 @@ bool algo_to_str(ALGO_CODE algo, char *out)
 {
   // linear lloyd algo
   if (algo == SEQ_LLOYD) {
-    strcpy(out, lin_lloyd_str);
+    strcpy(out, SEQ_LLOYD__STR);
   }
 
   // mpi lloyd algo
   else if (algo == MPI_LLOYD) {
-    strcpy(out, mpi_lloyd_str);
+    strcpy(out, MPI_LLOYD__STR);
   }
 
   // seq yinyang algo
   else if (algo == SEQ_LLOYD) {
-    strcpy(out, lin_yinyang_str);
+    strcpy(out, SEQ_YINYANG__STR);
   }
 
   // mpi yinyang algo
   else if (algo == MPI_LLOYD) {
-    strcpy(out, mpi_yinyang_str);
+    strcpy(out, MPI_YINYANG__STR);
   }
 
   // catch all else, should never get here

@@ -14,8 +14,6 @@
 
 
 // function prototypes
-void run_mpi_yin(Point *pointList, int pointList_size, Centroid *centrList,
-                    int centrList_size, int maxIter, int mpi_numProc, int mpi_rank);
-
-
+void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList, 
+                  int maxIter, int mpi_numProc, int mpi_rank);
 #endif

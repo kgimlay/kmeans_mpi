@@ -42,8 +42,8 @@ void groupCentroids(Centroid *centroids, int size, int num_groups)
 /*
 
 */
-void run_lin_yin(Point *pointList, int pointList_size, Centroid *centrList,
-                    int centrList_size, int numGroups, int maxIter)
+void run_lin_yin(PointData_t *pointList, CentroidData_t *centrList,
+                  int numGroups, int maxIter)
 {
 
 
