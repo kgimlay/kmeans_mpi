@@ -72,12 +72,14 @@ FILE_CODE exportCsv_double(double *outset, int numRow, int numCol, char *fileNam
     for(colCnt = 0; colCnt < numCol; colCnt++)
     {
       fprintf(filePtr, DOUBLE_EXP_PRECISION_FORMAT, outset[rowCnt * numCol + colCnt]);
+      // printf("%.4f, ", outset[rowCnt * numCol + colCnt]);
       if(colCnt != numCol - 1)
       {
         fprintf(filePtr, ",");
       }
     }
     fprintf(filePtr, "\r\n");
+    // printf("\n");
   }
 
   // file export ok

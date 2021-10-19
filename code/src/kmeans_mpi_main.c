@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
   int data_size;
   int data_dim;
   int num_clusters;
+  int verbose_level = DAFAULT_VERB_LEVEL;
   int maxIterations = DEFAULT_MAX_ITERATIONS;
   char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
   ALGO_CODE algo_select;
@@ -28,8 +29,8 @@ int main(int argc, char *argv[])
 
   // get command line arguments
   makeSaveOptions(&sOptions);
-  if (!parse_commandline(argc, argv, &data_size, &data_dim,
-    &num_clusters, dataFilePath_buff, &maxIterations, &sOptions, &algo_select))
+  if (!parse_commandline(argc, argv, &data_size, &data_dim, &num_clusters,
+    dataFilePath_buff, &maxIterations, &verbose_level, &sOptions, &algo_select))
   {
     printf("Command line parse failed, shutting down.\n");
     return 1;
@@ -99,6 +100,31 @@ int main(int argc, char *argv[])
       double timeArr[1] = {deltaTime(time.algoStartTime, time.algoEndTime)};
       exportCsv_double(timeArr, 1, 1, fileNamePath);
     }
+  }
+
+  // report results
+  if (mpi_rank == 0)
+  {
+    if (verbose_level > 0)
+    {
+      printf("Algo Time: %.4f\n\n", deltaTime(time.algoStartTime, time.algoEndTime));
+    }
+
+    if (verbose_level > 1)
+    {
+      printf("Centroids:\n");
+      for (int i = 0; i < centroids.k; i++)
+      {
+        for (int j = 0; j < centroids.dim; j++)
+        {
+          printf("%.4f, ", centroids.coords[i * centroids.dim + j]);
+        }
+        printf("\n");
+      }
+      printf("\n");
+    }
+
+    // TODO: more verbosity levels
   }
 
   /* Deinit MPI */

@@ -17,10 +17,8 @@ void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // prime centroids for next iteration
     primeCentroid(centrList);
 
-
     // re-member points to clusters
     updatePointClusterMembership(pointList, centrList);
-
 
     // recalculate center of clusters
     updateCentroids(centrList, pointList);
@@ -28,6 +26,7 @@ void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // check for convergence
     if (checkConvergence(centrList))
     {
+      printf("Iterations: %d\n", iterationCntr+1);
       break;
     }
 

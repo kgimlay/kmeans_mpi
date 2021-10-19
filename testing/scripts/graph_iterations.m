@@ -2,18 +2,18 @@
 % Graph the iterations until convergence
 
 
-max_iterations = 1;
+max_iterations = 10;
 data_size = 1000000;
 data_dimensionality = 2;
 num_clusters = 5;
 dataset_name = 'M2.csv';
-clust_output = 'clusters.csv';
+clust_output = 'centroid_coords.csv';
 point_ass_output = 'point_assignment.csv';
 
 base_dir = '../School/graduate/CS685\ -\ Graduate\ Research/kmeans_mpi';
 base_dir_sans_esc = erase(base_dir, '\');
 path_export = 'export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"';
-kmeans_call_args = strcat(strcat('./kmeans SEQ_LLOYD ./datasets/%s', sprintf(' %d %d %d ./output/', data_size, data_dimensionality, num_clusters)), ' -i %d');
+kmeans_call_args = './kmeans ./datasets/M2.csv 10000 2 SEQ_LLOYD 5 -scp ./output/ -i %d';
 
 dataset_dir = '/datasets/%s';
 output_dir = '/output/%s';
@@ -30,7 +30,7 @@ img_file = strcat(base_dir_sans_esc, sprintf(img_out_dir, "%d.jpg"));
 % convergence
 for iteration = 0:max_iterations
     % run kmeans with iteration counter as max iterations
-    system_call = sprintf('%s; cd %s; %s', path_export, base_dir, sprintf(kmeans_call_args, dataset_name, iteration));
+    system_call = sprintf('%s; cd %s; %s', path_export, base_dir, sprintf(kmeans_call_args, iteration));
     system(system_call);
     
     % load dataset and output files

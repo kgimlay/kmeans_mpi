@@ -16,9 +16,10 @@
 
 
 #define NUM_REQ_CMD_ARGS 5
-#define NUM_OPT_CMD_ARGS 2
+#define NUM_OPT_CMD_ARGS 3
 
 #define MAX_ITR_FLAG "-i"
+#define VERB_LVL_FLAG "-v"
 #define OUTPUT_FLAG "-s"
 #define OUTPUT_TIME "t"
 #define OUTPUT_CENT "c"
@@ -29,7 +30,7 @@
 
 
 bool parse_commandline(int argc, char *argv[], int *dataSize, int *dataDim,
-  int *numClust, char *datasetFilePath, int *itrMax,
+  int *numClust, char *datasetFilePath, int *itrMax, int *verbLvl,
   SaveOptions_t *fileOutputOptions, ALGO_CODE *algo_select);
 
 

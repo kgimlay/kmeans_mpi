@@ -19,11 +19,11 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
   // allocate weighted mean location list for MPI communication
   if (mpi_rank != 0)
   {
-    mpiCentrDataList_length = pointList->n;
+    mpiCentrDataList_length = pointList->n/centrList->k;
   }
   else
   {
-    mpiCentrDataList_length = pointList->n * mpi_numProc; // I think bug of dropping a couple points in computation stems from here
+    mpiCentrDataList_length = pointList->n/centrList->k * mpi_numProc; // I think bug of dropping a couple points in computation stems from here
   }
   mpiCentrDataList = (double *)malloc(sizeof(double) * mpiCentrDataList_length * mpiCentrDataList_width);
 
@@ -70,11 +70,21 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // prime centroids for next iteration
     primeCentroid(centrList);
 
+    // double tick = MPI_Wtime();
+
+    // printf("Rank %d, list length: %d\n", mpi_rank, mpiCentrDataList_length);
+
     // prime centroid weighted average list for MPI
     for (int i = 0; i < mpiCentrDataList_length * mpiCentrDataList_width; i++)
     {
-      mpiCentrDataList[i] = 0;
+      mpiCentrDataList[i] = 0.0;
     }
+
+    // double tock = MPI_Wtime();
+    // if (mpi_rank == 0)
+    // {
+    // printf("MPI time: %.4f\n", tock-tick);
+    // }
 
     // re-member points to clusters
     updatePointClusterMembership(&pointSublist, centrList);
@@ -86,10 +96,14 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // check for convergence
     if (checkConvergence(centrList))
     {
+      if (mpi_rank == 0)
+      {
+        printf("Iterations: %d\n", iterationCntr+1);
+      }
       break;
     }
 
-  } /* end while */
+  }
 
   // communicate to set rank 0's point data (centroid assignment) to reflect
   // the distributed conclusion

@@ -119,7 +119,6 @@ void primeCentroid(CentroidData_t *centroidList)
     }
 
     // reset size for average calculation
-    // centroidList[centrIdx].size = 0;
     centroidList->sizes[centrIdx] = 0;
   }
 }
@@ -132,10 +131,11 @@ bool checkConvergence(CentroidData_t *centrList)
 {
   for(int centrIdx = 0; centrIdx < centrList->k; centrIdx++)
   {
-    for(int dimIdx = 0; dimIdx < centrList[centrIdx].dim; dimIdx++)
+    for(int dimIdx = 0; dimIdx < centrList->dim; dimIdx++)
     {
-      if(centrList[centrIdx].coords[dimIdx] != centrList[centrIdx].prevCoords[dimIdx]
-          && !isnan(centrList[centrIdx].coords[dimIdx]))
+      if(centrList->coords[centrIdx * centrList->dim + dimIdx]
+        == centrList->prevCoords[centrIdx * centrList->dim + dimIdx]
+        && !isnan(centrList->coords[centrIdx * centrList->dim + dimIdx]))
       {
         return true;
       }
@@ -262,9 +262,9 @@ void startCentroids(CentroidData_t *centrList, PointData_t *pointList)
       {
         centrList->coords[centrIdx * centrList->dim + dimIdx]
           = pointList->coords[(rand() % pointList->n) * pointList->dim + dimIdx];
-          printf("%.3f, ", pointList->coords[(rand() % pointList->n) * pointList->dim + dimIdx]);
+          // printf("%.3f, ", pointList->coords[(rand() % pointList->n) * pointList->dim + dimIdx]);
       }
-      printf("\n");
+      // printf("\n");
     }
   #endif
 }

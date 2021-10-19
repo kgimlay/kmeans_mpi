@@ -5,8 +5,8 @@
 # fi
 # echo ''
 
-for i in $(seq 0 100)
+for i in $(seq 0 0)
 do
-  echo $i
-  ./kmeans ./datasets/M2.csv 100 2 SEQ_LLOYD 5 ./output/
+  ./kmeans ./datasets/M.csv 1000000 2 SEQ_LLOYD 50 -s ./output/ -v 1
+  mpiexec -np 8 ./kmeans ./datasets/M.csv 1000000 2 MPI_LLOYD 50 -s ./output/ -v 1
 done

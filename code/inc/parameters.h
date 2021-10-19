@@ -4,10 +4,6 @@
 #define PARAMETERS_H
 
 
-// enable verbose printing of operation
-// will decrease performance, set to 0 for time critical
-#define VERBOSE 0
-
 // enable debug printing statements
 // will decrease performance, set to 0 for time critical
 #define DEBUG 0
@@ -23,6 +19,12 @@
 
 // maximum number of iterations to allow
 #define DEFAULT_MAX_ITERATIONS 10000
+
+// default verbose level for printing
+// 0: no print statements
+// 1: print time
+// 2: centroid coords and above
+#define DAFAULT_VERB_LEVEL 1
 
 // maximum size of string buffers
 #define MAX_STR_BUFF_SIZE 128
