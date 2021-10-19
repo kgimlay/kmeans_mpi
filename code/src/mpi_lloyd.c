@@ -70,21 +70,11 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // prime centroids for next iteration
     primeCentroid(centrList);
 
-    // double tick = MPI_Wtime();
-
-    // printf("Rank %d, list length: %d\n", mpi_rank, mpiCentrDataList_length);
-
     // prime centroid weighted average list for MPI
     for (int i = 0; i < mpiCentrDataList_length * mpiCentrDataList_width; i++)
     {
       mpiCentrDataList[i] = 0.0;
     }
-
-    // double tock = MPI_Wtime();
-    // if (mpi_rank == 0)
-    // {
-    // printf("MPI time: %.4f\n", tock-tick);
-    // }
 
     // re-member points to clusters
     updatePointClusterMembership(&pointSublist, centrList);

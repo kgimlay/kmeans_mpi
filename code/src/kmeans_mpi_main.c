@@ -105,12 +105,14 @@ int main(int argc, char *argv[])
   // report results
   if (mpi_rank == 0)
   {
-    if (verbose_level > 0)
+    // verbose level 1
+    if (verbose_level >= 1)
     {
       printf("Algo Time: %.4f\n\n", deltaTime(time.algoStartTime, time.algoEndTime));
     }
 
-    if (verbose_level > 1)
+    // verbose level 2
+    if (verbose_level >= 2)
     {
       printf("Centroids:\n");
       for (int i = 0; i < centroids.k; i++)
@@ -124,6 +126,7 @@ int main(int argc, char *argv[])
       printf("\n");
     }
 
+    // verbose level 3
     // TODO: more verbosity levels
   }
 

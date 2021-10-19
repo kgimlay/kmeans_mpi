@@ -11,6 +11,15 @@ void makePoints(PointData_t *pointStruct, int n, int dim)
   pointStruct->lb       = (double*)malloc(sizeof(int) * n);
   pointStruct->ub       = (double*)malloc(sizeof(int) * n);
 
+  // check errors with mem allocation
+  if (pointStruct->centroid == NULL
+      || pointStruct->coords == NULL
+      || pointStruct->lb == NULL
+      || pointStruct->ub == NULL)
+  {
+    printf("Problem allocating memory [kmeans_mpi_main.c]\n");
+  }
+
   // assign values
   pointStruct->n        = n;
   pointStruct->dim      = dim;
@@ -26,6 +35,16 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
   centroidStruct->prevCoords = (double*)malloc(sizeof(double) * k * dim);
   centroidStruct->maxDrift   = (double*)malloc(sizeof(int) * k);
 
+  // check errors with mem allocation
+  if (centroidStruct->groupID == NULL
+      || centroidStruct->sizes == NULL
+      || centroidStruct->coords == NULL
+      || centroidStruct->prevCoords == NULL
+      || centroidStruct->maxDrift == NULL)
+  {
+    printf("Problem allocating memory [kmeans_mpi_main.c]\n");
+  }
+
   // assign values
   centroidStruct->k          = k;
   centroidStruct->dim        = dim;
@@ -36,6 +55,12 @@ void makeSaveOptions(SaveOptions_t *saveOptions)
 {
   // allocate file path
   saveOptions->path = (char*)malloc(sizeof(char) * MAX_STR_BUFF_SIZE);
+
+  // check errors with mem allocation
+  if (saveOptions->path == NULL)
+  {
+    printf("Problem allocating memory [kmeans_mpi_main.c]\n");
+  }
 
   // reset flags
   saveOptions->options.outPoints = false;
