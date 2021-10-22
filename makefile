@@ -29,6 +29,9 @@ time_utils.o: $(CODE_SRC_DIR)time_utils.c $(CODE_INC_DIR)time_utils.h
 command_line_utils.o: $(CODE_SRC_DIR)command_line_utils.c $(CODE_INC_DIR)command_line_utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)command_line_utils.c -o $(OBJ_DIR)command_line_utils.o
 
+mpi_utils.o: $(CODE_SRC_DIR)mpi_utils.c $(CODE_INC_DIR)mpi_utils.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)mpi_utils.c -o $(OBJ_DIR)mpi_utils.o
+
 seq_lloyd.o: $(CODE_SRC_DIR)seq_lloyd.c $(CODE_INC_DIR)seq_lloyd.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)seq_lloyd.c -o $(OBJ_DIR)seq_lloyd.o
 
@@ -47,6 +50,7 @@ $(EXECUTABLE): kmeans_mpi_main.o \
 	utils.o \
 	data_utils.o \
 	time_utils.o \
+	mpi_utils.o \
 	seq_lloyd.o \
 	mpi_lloyd.o #\
 	seq_yinyang.o #\
@@ -57,6 +61,7 @@ $(EXECUTABLE): kmeans_mpi_main.o \
 	$(OBJ_DIR)command_line_utils.o \
 	$(OBJ_DIR)data_utils.o \
 	$(OBJ_DIR)time_utils.o \
+	$(OBJ_DIR)mpi_utils.o \
 	$(OBJ_DIR)seq_lloyd.o \
 	$(OBJ_DIR)mpi_lloyd.o #\
 	$(OBJ_DIR)seq_yinyang.o #\

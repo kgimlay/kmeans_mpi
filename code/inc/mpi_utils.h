@@ -7,6 +7,10 @@
 #include <mpi.h>
 
 
+/* ----- function prototypes ----- */
+
+int calcPointSublistSize_rank0(int data_size, int num_ranks);
+int calcPointSublistSize_rankNon0(int data_size, int num_ranks);
 
 
 # endif

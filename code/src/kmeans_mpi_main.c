@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
       {
         for (int j = 0; j < centroids.dim; j++)
         {
-          printf("%.4f, ", centroids.coords[i * centroids.dim + j]);
+          printf("%.2f, ", centroids.coords[i * centroids.dim + j]);
         }
         printf("\n");
       }

@@ -41,6 +41,8 @@ typedef struct {
 typedef struct {
   int n;
   int dim;
+  int sublistN;             // size of sublist (used for sublisting)
+  int sublistOffset;        // start sublist offset for associated lists below
   int *centroid;            // needs to be allocated to size n
   double *coords;           // needs to be allocated to size n*dim
   double *lb;               // needs to be allocated to size n
@@ -61,7 +63,7 @@ typedef struct {
 // Stores options for file output such as output path and what files to output
 typedef struct {
   char *path;               // parent folder to output files to
-  OutputOptions_t options; // options on what to output
+  OutputOptions_t options;  // options on what to output
 } SaveOptions_t;
 
 
@@ -82,8 +84,8 @@ void updatePointClusterMembership(PointData_t *pointList,
                                   CentroidData_t *centroidList);
 void updateCentroids(CentroidData_t *centrList, PointData_t *pointList);
 void startCentroids(CentroidData_t *centrList, PointData_t *pointList);
-void updateCentroids_MPI(PointData_t *pointSublist, CentroidData_t *centrList,
-                      int mpi_rank, int mpi_numProc, double *mpiCentrDataList,
-                      int mpiCentrDataList_width);
+void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
+                      int mpi_rank, int mpi_numProc, int rank_0_sublist_size,
+                      int rank_non_0_sublist_size);
 
 #endif

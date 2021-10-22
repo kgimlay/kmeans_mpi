@@ -11,6 +11,7 @@
 #include <mpi.h>
 #include "parameters.h"
 #include "data_utils.h"
+#include "mpi_utils.h"
 
 
 // function prototypes

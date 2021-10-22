@@ -17,12 +17,22 @@ void makePoints(PointData_t *pointStruct, int n, int dim)
       || pointStruct->lb == NULL
       || pointStruct->ub == NULL)
   {
-    printf("Problem allocating memory [kmeans_mpi_main.c]\n");
+    printf("Problem allocating memory [data_utils.c]\n");
   }
 
   // assign values
   pointStruct->n        = n;
   pointStruct->dim      = dim;
+  pointStruct->sublistN = n;
+  pointStruct->sublistOffset = 0;
+
+
+  /* For Debugging */
+  // set centroid to all -1
+  for (int i = 0; i < n; i++)
+  {
+    pointStruct->centroid[i] = -1;
+  }
 }
 
 
@@ -42,7 +52,7 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
       || centroidStruct->prevCoords == NULL
       || centroidStruct->maxDrift == NULL)
   {
-    printf("Problem allocating memory [kmeans_mpi_main.c]\n");
+    printf("Problem allocating memory [data_utils.c]\n");
   }
 
   // assign values
@@ -59,7 +69,7 @@ void makeSaveOptions(SaveOptions_t *saveOptions)
   // check errors with mem allocation
   if (saveOptions->path == NULL)
   {
-    printf("Problem allocating memory [kmeans_mpi_main.c]\n");
+    printf("Problem allocating memory [data_utils.c]\n");
   }
 
   // reset flags
@@ -182,7 +192,9 @@ void updatePointClusterMembership(PointData_t *pointList,
   int tempCentr = -1;
 
   // loop over each point
-  for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+  for(int pointIdx = pointList->sublistOffset;
+    pointIdx < pointList->sublistN + pointList->sublistOffset;
+    pointIdx++)
   {
     tempMinDist = INFINITY;
 
@@ -198,10 +210,9 @@ void updatePointClusterMembership(PointData_t *pointList,
         tempCentr = centrIdx;
         tempMinDist = tempDist;
       }
-    }
+    } /* end for */
 
     // update cluster membership
-    // pointList[pointIdx].centroid = tempCentr;
     pointList->centroid[pointIdx] = tempCentr;
   } /* end for */
 }
@@ -245,15 +256,6 @@ void updateCentroids(CentroidData_t *centrList, PointData_t *pointList)
 */
 void startCentroids(CentroidData_t *centrList, PointData_t *pointList)
 {
-  // assign points to centroids, alternating
-  // this helps with testing script; signifies disorder to begin
-  for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
-  {
-    pointList->centroid[pointIdx] = pointIdx % centrList->k;
-  }
-
-  /* select which method of setting starting positions for centroids */
-
   // first N datapoints
   #if CENTR_START_METHOD == 0
     // loop over centroids and pick datapoint n to set it's coords to
@@ -287,9 +289,7 @@ void startCentroids(CentroidData_t *centrList, PointData_t *pointList)
       {
         centrList->coords[centrIdx * centrList->dim + dimIdx]
           = pointList->coords[(rand() % pointList->n) * pointList->dim + dimIdx];
-          // printf("%.3f, ", pointList->coords[(rand() % pointList->n) * pointList->dim + dimIdx]);
       }
-      // printf("\n");
     }
   #endif
 }
@@ -298,104 +298,66 @@ void startCentroids(CentroidData_t *centrList, PointData_t *pointList)
 /*
 
 */
-void updateCentroids_MPI(PointData_t *pointSublist, CentroidData_t *centrList,
-                      int mpi_rank, int mpi_numProc, double *mpiCentrDataList,
-                      int mpiCentrDataList_width)
+void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
+                      int mpi_rank, int mpi_numProc, int rank_0_sublist_size,
+                      int rank_non_0_sublist_size)
 {
-  int dataDim = pointSublist->dim;
-
-  // calculate weighted means
-  for (int i = 0; i < pointSublist->n; i++)
-  {
-    for (int j = 0 ; j < pointSublist->dim; j++)
-    {
-      mpiCentrDataList[pointSublist->centroid[i] * mpiCentrDataList_width + j]
-        += pointSublist->coords[i * pointSublist->dim + j];
-    }
-    mpiCentrDataList[pointSublist->centroid[i] * mpiCentrDataList_width + centrList->dim]++;
-  }
-
-
   /** begin processes divergence on rank **/
 
-  // if not rank 0, send weighted mean to rank 0, then wait for new centroid
+  // if not rank 0, send centroid assignments to rank 0, then wait for new centroid
   // locations
   if (mpi_rank != 0)
   {
-    // printf("Rank %d sending to Rank 0\n", mpi_rank);
-    // send to rank 0
-    MPI_Send(mpiCentrDataList,
-      centrList->k * (centrList->dim + 1),
-      MPI_DOUBLE,
+    // send centroid assignments to rank 0
+    MPI_Send(pointList->centroid + pointList->sublistOffset,
+      pointList->sublistN,
+      MPI_INTEGER,
       0, 0,
       MPI_COMM_WORLD);
-    // printf("Rank %d, done sending\n", mpi_rank);
+
     // receive new centroid locations from rank 0
     MPI_Status status;
-    MPI_Recv(mpiCentrDataList,
-      centrList->k * mpiCentrDataList_width,
+    MPI_Recv(centrList->coords,
+      centrList->k * centrList->dim,
       MPI_DOUBLE,
       0, 0,
       MPI_COMM_WORLD,
       &status);
-  }
+  } /* end if mpi_rank != 0 */
 
   // if rank 0, recieve weighted sums, calculate new centroid locations,
   // and send locations back to all other ranks
   else
   {
-    // receive weighted means
+    // receive centroid assignments
     MPI_Status status;
+    int sendRecieveOffset;
     for (int i = 1; i < mpi_numProc; i++)
     {
-      // printf("Rank 0 receiving from Rank %d\n", i);
-      MPI_Recv(&mpiCentrDataList[i * mpiCentrDataList_width * centrList->k],
-        centrList->k * mpiCentrDataList_width,
-        MPI_DOUBLE,
+      sendRecieveOffset = rank_0_sublist_size + ((i - 1) * rank_non_0_sublist_size);
+      MPI_Recv(pointList->centroid + sendRecieveOffset,
+        pointList->sublistN,
+        MPI_INTEGER,
         i, 0,
         MPI_COMM_WORLD,
         &status);
-      // printf("Rank 0, done receiving from rank %d\n", i);
     }
 
     // recalculate center of clusters
-    for (int i = 0; i < centrList->k; i++)
-    {
-      for (int j = 0; j < mpiCentrDataList_width; j++)
-      {
-        for (int k = 1; k < mpi_numProc; k++)
-        {
-          mpiCentrDataList[i * mpiCentrDataList_width + j] +=
-            mpiCentrDataList[i * mpiCentrDataList_width + j + k * mpiCentrDataList_width * centrList->k];
-        }
-      }
-    }
-    for (int i = 0; i < centrList->k; i++)
-    {
-      for (int j = 0; j < mpiCentrDataList_width - 1; j++)
-      {
-        mpiCentrDataList[i * mpiCentrDataList_width + j] /=
-          mpiCentrDataList[i * mpiCentrDataList_width + mpiCentrDataList_width - 1];
-      }
-    }
+    updateCentroids(centrList, pointList);
 
+    // send centroid locations
     for (int i = 1; i < mpi_numProc; i++)
     {
-      MPI_Send(mpiCentrDataList,
-        centrList->k * mpiCentrDataList_width,
+      sendRecieveOffset = (rank_0_sublist_size * pointList->dim)
+          + ((i - 1) * rank_non_0_sublist_size);
+      MPI_Send(centrList->coords,
+        centrList->k * centrList->dim,
         MPI_DOUBLE,
         i, 0,
         MPI_COMM_WORLD);
     }
-  }
+  } /* end if mpi_rank == 0 */
 
   /** end processes divergence on rank **/
-
-  for (int i = 0; i < centrList->k; i++)
-  {
-    for (int j = 0; j < dataDim; j++)
-    {
-      centrList->coords[i * centrList->dim + j] = mpiCentrDataList[i * mpiCentrDataList_width + j];
-    }
-  }
 }

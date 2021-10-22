@@ -9,58 +9,27 @@
 void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIter,
                   int mpi_numProc, int mpi_rank)
 {
-  // operation variables
-  PointData_t pointSublist;
-  int dataDim = pointList->dim;
-  double *mpiCentrDataList;
-  int mpiCentrDataList_length;
-  int mpiCentrDataList_width = dataDim + 1;
-
-  // allocate weighted mean location list for MPI communication
-  if (mpi_rank != 0)
-  {
-    mpiCentrDataList_length = pointList->n/centrList->k;
-  }
-  else
-  {
-    mpiCentrDataList_length = pointList->n/centrList->k * mpi_numProc; // I think bug of dropping a couple points in computation stems from here
-  }
-  mpiCentrDataList = (double *)malloc(sizeof(double) * mpiCentrDataList_length * mpiCentrDataList_width);
+  /** begin processes divergence on rank **/
 
   // select starting points for centroids
   startCentroids(centrList, pointList);
 
-  /** begin processes divergence on rank **/
-
-  // select points for process
-  int pointSublist_size_non_0 = pointList->n / mpi_numProc;
-  int pointSublist_size_0 = pointSublist_size_non_0 + pointList->n % mpi_numProc;
-  if (mpi_rank == 0)
+  // select subpoint list
+  int pointSublist_size_0_rank = calcPointSublistSize_rank0(pointList->n, mpi_numProc);
+  int pointSublist_size_non_0_rank = calcPointSublistSize_rankNon0(pointList->n, mpi_numProc);
+  if (mpi_rank != 0)
   {
-    // make point sublist
-    makePoints(&pointSublist, pointSublist_size_0, pointList->dim);
-
-    // copy data to point sublist
-    for (int i = 0; i < pointSublist_size_0 * pointList->dim; i++)
-    {
-      pointSublist.coords[i] = pointList->coords[i];
-    }
+    // select points for process
+    pointList->sublistN = pointSublist_size_non_0_rank;
+    pointList->sublistOffset = pointSublist_size_0_rank + ((mpi_rank - 1) * pointSublist_size_non_0_rank);
   }
   else
   {
-    // make point sublist
-    makePoints(&pointSublist, pointSublist_size_non_0, pointList->dim);
-
-    // copy data to point sublist
-    for (int i = 0; i < pointSublist_size_non_0 * pointList->dim; i++)
-    {
-      pointSublist.coords[i] = pointList->coords[i + pointSublist_size_0 + (mpi_rank - 1) * pointSublist_size_non_0];
-    }
-
-    // offset the other ranks' sublist by the amount added to rank 0's size
-    // pointSublist = pointList[mpi_rank * pointSublist.n + pointList->n % mpi_numProc];
+    // select points for process
+    pointList->sublistN = pointSublist_size_0_rank;
+    pointList->sublistOffset = 0;
   }
-  // printf("Rank %d taking points %d thru %d\n", mpi_rank, pointSublist[0].id, pointSublist[pointSublist_size-1].id);
+  // printf("Rank %d -- sublist size: %d, sublist offset: %d\n", mpi_rank, pointList->sublistN, pointList->sublistOffset);
 
   /** end processes divergence on rank **/
 
@@ -70,18 +39,12 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // prime centroids for next iteration
     primeCentroid(centrList);
 
-    // prime centroid weighted average list for MPI
-    for (int i = 0; i < mpiCentrDataList_length * mpiCentrDataList_width; i++)
-    {
-      mpiCentrDataList[i] = 0.0;
-    }
-
     // re-member points to clusters
-    updatePointClusterMembership(&pointSublist, centrList);
+    updatePointClusterMembership(pointList, centrList);
 
     // recalculate center of clusters
-    updateCentroids_MPI(&pointSublist, centrList, mpi_rank, mpi_numProc,
-                        mpiCentrDataList, mpiCentrDataList_width);
+    updateCentroids_MPI(pointList, centrList, mpi_rank, mpi_numProc,
+                        pointSublist_size_0_rank, pointSublist_size_non_0_rank);
 
     // check for convergence
     if (checkConvergence(centrList))
@@ -98,7 +61,4 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
   // communicate to set rank 0's point data (centroid assignment) to reflect
   // the distributed conclusion
 
-
-  // free memory
-  free(mpiCentrDataList);
 }
