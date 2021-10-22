@@ -8,8 +8,6 @@
 
 // Timing data structure
 typedef struct {
-  double progStartTime;
-  double progEndTime;
   double algoStartTime;
   double algoEndTime;
 } TimeData_t;

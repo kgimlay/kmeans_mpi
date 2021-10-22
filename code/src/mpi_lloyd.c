@@ -11,9 +11,6 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
 {
   /** begin processes divergence on rank **/
 
-  // select starting points for centroids
-  startCentroids(centrList, pointList);
-
   // select subpoint list
   int pointSublist_size_0_rank = calcPointSublistSize_rank0(pointList->n, mpi_numProc);
   int pointSublist_size_non_0_rank = calcPointSublistSize_rankNon0(pointList->n, mpi_numProc);
@@ -29,9 +26,11 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     pointList->sublistN = pointSublist_size_0_rank;
     pointList->sublistOffset = 0;
   }
-  // printf("Rank %d -- sublist size: %d, sublist offset: %d\n", mpi_rank, pointList->sublistN, pointList->sublistOffset);
 
   /** end processes divergence on rank **/
+
+  // select starting points for centroids
+  startCentroids(centrList, pointList);
 
   // while no convergence and not at max iterations
   for(int iterationCntr = 0; iterationCntr < maxIter; iterationCntr++)
@@ -43,6 +42,7 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     updatePointClusterMembership(pointList, centrList);
 
     // recalculate center of clusters
+    // pricess divergence on rank inside of here
     updateCentroids_MPI(pointList, centrList, mpi_rank, mpi_numProc,
                         pointSublist_size_0_rank, pointSublist_size_non_0_rank);
 

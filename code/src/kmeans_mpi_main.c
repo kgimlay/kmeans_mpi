@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   CentroidData_t centroids;
   PointData_t points;
   SaveOptions_t sOptions;
-  TimeData_t time;
+  TimeData_t timeMetrics;
 
   /* Init MPI */
   MPI_Init(&argc, &argv);
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   importCsv_double(points.coords, data_size, data_dim, dataFilePath_buff);
 
   // start timing algo
-  time.algoStartTime = wallTime();
+  timeMetrics.algoStartTime = wallTime();
 
   // setup complete, call algorithm for execution
   if (algo_select == SEQ_LLOYD)
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
   }
 
   // end timing algo
-  time.algoEndTime = wallTime();
+  timeMetrics.algoEndTime = wallTime();
 
   // save results, if output specified
   if (mpi_rank == 0 && strlen(sOptions.path) != 0)
@@ -93,12 +93,12 @@ int main(int argc, char *argv[])
     }
     if (sOptions.options.outTime)
     {
-      // save time information
+      // save timeMetrics information
       char fileNamePath[MAX_STR_BUFF_SIZE];
       strcpy(fileNamePath, sOptions.path);
-      strcat(fileNamePath, "time_metrics.csv");
-      double timeArr[1] = {deltaTime(time.algoStartTime, time.algoEndTime)};
-      exportCsv_double(timeArr, 1, 1, fileNamePath);
+      strcat(fileNamePath, "timeMetrics_metrics.csv");
+      double timeMetricsArr[1] = {deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime)};
+      exportCsv_double(timeMetricsArr, 1, 1, fileNamePath);
     }
   }
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     // verbose level 1
     if (verbose_level >= 1)
     {
-      printf("Algo Time: %.4f\n\n", deltaTime(time.algoStartTime, time.algoEndTime));
+      printf("Algo Time: %.4f\n\n", deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime));
     }
 
     // verbose level 2
