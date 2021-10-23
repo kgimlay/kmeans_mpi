@@ -1,6 +1,6 @@
 // Author: Kevin Imlay
 
-#include "../inc/kmeans_mpi_main.h"
+#include "../inc/kmeans_main.h"
 
 /*
 

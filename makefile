@@ -1,7 +1,8 @@
 # Author: Kevin Imlay
 
 CC = mpicc
-EXECUTABLE = kmeans
+KMEANS_EXECUTABLE = kmeans_main
+KMEANS_WRAPPER_EXECUTABLE = kmeans_wrapper
 FLAGS = -O3 -Wall -std=c99 -pedantic -g
 CFLAGS = -c -pedantic
 CODE_INC_DIR = code/inc/
@@ -9,10 +10,13 @@ CODE_SRC_DIR = code/src/
 OBJ_DIR = objects/
 
 
-all: $(EXECUTABLE)
+all: $(KMEANS_EXECUTABLE) $(KMEANS_WRAPPER_EXECUTABLE)
 
-kmeans_mpi_main.o: $(CODE_SRC_DIR)kmeans_mpi_main.c $(CODE_INC_DIR)kmeans_mpi_main.h
-	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)kmeans_mpi_main.c -o $(OBJ_DIR)kmeans_mpi_main.o
+kmeans_wrapper_main.o: $(CODE_SRC_DIR)kmeans_wrapper_main.c $(CODE_INC_DIR)kmeans_wrapper_main.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)kmeans_wrapper_main.c -o $(OBJ_DIR)kmeans_wrapper_main.o
+
+kmeans_main.o: $(CODE_SRC_DIR)kmeans_main.c $(CODE_INC_DIR)kmeans_main.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)kmeans_main.c -o $(OBJ_DIR)kmeans_main.o
 
 utils.o: $(CODE_SRC_DIR)utils.c $(CODE_INC_DIR)utils.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)utils.c -o $(OBJ_DIR)utils.o
@@ -44,7 +48,7 @@ mpi_lloyd.o: $(CODE_SRC_DIR)mpi_lloyd.c $(CODE_INC_DIR)mpi_lloyd.h
 # mpi_yinyang.o: $(CODE_SRC_DIR)mpi_yinyang.c $(CODE_INC_DIR)mpi_yinyang.h
 # 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)mpi_yinyang.c -o $(OBJ_DIR)mpi_yinyang.o
 
-$(EXECUTABLE): kmeans_mpi_main.o \
+$(KMEANS_EXECUTABLE): kmeans_main.o \
 	file_utils.o \
 	command_line_utils.o \
 	utils.o \
@@ -55,7 +59,7 @@ $(EXECUTABLE): kmeans_mpi_main.o \
 	mpi_lloyd.o #\
 	seq_yinyang.o #\
 	# mpi_yinyang.o
-	$(CC) $(FLAGS) -o $(EXECUTABLE) $(OBJ_DIR)kmeans_mpi_main.o \
+	$(CC) $(FLAGS) -o $(KMEANS_EXECUTABLE) $(OBJ_DIR)kmeans_main.o \
 	$(OBJ_DIR)file_utils.o \
 	$(OBJ_DIR)utils.o \
 	$(OBJ_DIR)command_line_utils.o \
@@ -67,7 +71,11 @@ $(EXECUTABLE): kmeans_mpi_main.o \
 	$(OBJ_DIR)seq_yinyang.o #\
 	$(OBJ_DIR)mpi_yinyang.o
 
+$(KMEANS_WRAPPER_EXECUTABLE): kmeans_wrapper_main.o
+	$(CC) $(FLAGS) -o $(KMEANS_WRAPPER_EXECUTABLE) $(OBJ_DIR)kmeans_wrapper_main.o
+
 
 clean:
 	rm $(OBJ_DIR)*.o
-	rm $(EXECUTABLE)
+	rm $(KMEANS_EXECUTABLE)
+	rm $(KMEANS_WRAPPER_EXECUTABLE)
