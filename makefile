@@ -71,8 +71,10 @@ $(KMEANS_EXECUTABLE): kmeans_main.o \
 	$(OBJ_DIR)seq_yinyang.o #\
 	$(OBJ_DIR)mpi_yinyang.o
 
-$(KMEANS_WRAPPER_EXECUTABLE): kmeans_wrapper_main.o
-	$(CC) $(FLAGS) -o $(KMEANS_WRAPPER_EXECUTABLE) $(OBJ_DIR)kmeans_wrapper_main.o
+$(KMEANS_WRAPPER_EXECUTABLE): kmeans_wrapper_main.o \
+	utils.o
+	$(CC) $(FLAGS) -o $(KMEANS_WRAPPER_EXECUTABLE) $(OBJ_DIR)kmeans_wrapper_main.o \
+	$(OBJ_DIR)utils.o
 
 
 clean:
