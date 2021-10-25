@@ -6,36 +6,9 @@
 /*
 
 */
-void groupCentroids(Centroid *centroids, int size, int num_groups)
+void groupCentroids(CentroidData_t *centroids, int num_groups)
 {
-  // make points at centroid locations for running lloyd's to groupd centroids
-  Point *centrPoints = (Point *)malloc(sizeof(Point) * size);
-  makePoints(centrPoints, size, centroids[0].dim);
-  for (int i = 0; i < size; i++)
-  {
-    for (int j = 0; j < centrPoints[0].dim; j++)
-    {
-      centrPoints[i].coords[j] = centroids[i].coords[j];
-    }
-  }
 
-  // make centroids for grouping centroids
-  Centroid *centrCentroids = (Centroid *)malloc(sizeof(Centroid) * num_groups);
-  makeCentroids(centrCentroids, num_groups, centroids[0].dim);
-
-  // run lloyd's to groupd centroids (points at centroid locations)
-  run_lin_lloyd(centrPoints, size, centrCentroids, num_groups, 10);
-
-  // extract grouping from points to centroids
-  for (int i = 0; i < size; i++)
-  {
-    centroids[i].groupId = centrPoints[i].centroid->id;
-    // printf("Centroid %d grouped to %d\n", i, centrList[i].groupId);
-  }
-
-  // free points, not needed after grouping of centroids
-  freePoints(centrPoints, size);
-  freeCentroids(centrCentroids, num_groups);
 }
 
 
@@ -45,16 +18,14 @@ void groupCentroids(Centroid *centroids, int size, int num_groups)
 void run_lin_yin(PointData_t *pointList, CentroidData_t *centrList,
                   int numGroups, int maxIter)
 {
-
-
   // select starting points for centroids
-  startCentroids(centrList, centrList_size, pointList, pointList_size);
+  startCentroids(centrList, pointList);
 
   // group centroids into t groups
-  groupCentroids(centrList, centrList_size, numGroups);
+  groupCentroids(centrList, numGroups);
 
   // run sequential lloyd's for first iteration and assign lower and upper bounds
-  run_lin_lloyd(pointList, pointList_size, centrList, centrList_size, 1);
+  run_seq_lloyd(pointList, centrList, 1);
 
   // while no convergence and not at max iterations
   // note, counter starting at 1 because at this point starting at 2nd iteration
@@ -87,7 +58,7 @@ void run_lin_yin(PointData_t *pointList, CentroidData_t *centrList,
 
 
     // check for convergence
-    if (checkConvergence(centrList, centrList_size))
+    if (checkConvergence(centrList))
     {
       break;
     }
