@@ -3,21 +3,23 @@
 #include "../inc/data_utils.h"
 
 
-void makePoints(PointData_t *pointStruct, int n, int dim)
+void makePoints(PointData_t *pointStruct, int n, int dim, int p)
 {
   // allocate lists
-  pointStruct->centroid = (int*)malloc(sizeof(int) * n);
-  pointStruct->coords   = (double*)malloc(sizeof(double) * n * dim);
-  pointStruct->lb       = (double*)malloc(sizeof(int) * n);
-  pointStruct->ub       = (double*)malloc(sizeof(int) * n);
+  pointStruct->centroids      = (int*)malloc(sizeof(int) * n);
+  pointStruct->prevCentroids  = (int*)malloc(sizeof(int) * n);
+  pointStruct->coords         = (double*)malloc(sizeof(double) * n * dim);
+  pointStruct->ub             = (double*)malloc(sizeof(double) * n);
+  pointStruct->lb             = (double*)malloc(sizeof(double) * n * p);
 
   // check errors with mem allocation
-  if (pointStruct->centroid == NULL
+  if (pointStruct->centroids == NULL
+      || pointStruct->prevCentroids == NULL
       || pointStruct->coords == NULL
       || pointStruct->lb == NULL
       || pointStruct->ub == NULL)
   {
-    printf("Problem allocating memory [data_utils.c]\n");
+    printf("Problem allocating memory [data_utils.c/makePoints]\n");
   }
 
   // assign values
@@ -31,7 +33,7 @@ void makePoints(PointData_t *pointStruct, int n, int dim)
   // set centroid to all -1
   for (int i = 0; i < n; i++)
   {
-    pointStruct->centroid[i] = -1;
+    pointStruct->centroids[i] = -1;
   }
 }
 
@@ -43,16 +45,14 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
   centroidStruct->sizes      = (int*)malloc(sizeof(int) * k);
   centroidStruct->coords     = (double*)malloc(sizeof(double) * k * dim);
   centroidStruct->prevCoords = (double*)malloc(sizeof(double) * k * dim);
-  centroidStruct->maxDrift   = (double*)malloc(sizeof(int) * k);
 
   // check errors with mem allocation
   if (centroidStruct->groupID == NULL
       || centroidStruct->sizes == NULL
       || centroidStruct->coords == NULL
-      || centroidStruct->prevCoords == NULL
-      || centroidStruct->maxDrift == NULL)
+      || centroidStruct->prevCoords == NULL)
   {
-    printf("Problem allocating memory [data_utils.c]\n");
+    printf("Problem allocating memory [data_utils.c/makeCentroids]\n");
   }
 
   // assign values
@@ -69,7 +69,7 @@ void makeSaveOptions(SaveOptions_t *saveOptions)
   // check errors with mem allocation
   if (saveOptions->path == NULL)
   {
-    printf("Problem allocating memory [data_utils.c]\n");
+    printf("Problem allocating memory [data_utils.c/makeSaveOptions]\n");
   }
 
   // reset flags
@@ -79,10 +79,20 @@ void makeSaveOptions(SaveOptions_t *saveOptions)
 }
 
 
+void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n)
+{
+  // allocate lists
+  groups->centroidAss = (int*)malloc(sizeof(int) * p);
+  groups->groupLcl    = (int*)malloc(sizeof(int) * p * n);
+  groups->maxDrift    = (double*)malloc(sizeof(double) * p);
+}
+
+
 void freePoints(PointData_t pointList, int n)
 {
   // free pointList fields
-  free(pointList.centroid);
+  free(pointList.centroids);
+  free(pointList.prevCentroids);
   free(pointList.coords);
   free(pointList.lb);
   free(pointList.ub);
@@ -96,7 +106,6 @@ void freeCentroids(CentroidData_t centroidList, int k)
   free(centroidList.sizes);
   free(centroidList.coords);
   free(centroidList.prevCoords);
-  free(centroidList.maxDrift);
 }
 
 
@@ -104,6 +113,14 @@ void freeSaveOptions(SaveOptions_t saveOptions)
 {
   // free output path buffer
   free(saveOptions.path);
+}
+
+
+void freeCentroidGroups(CentroidGroupData_t groups)
+{
+  free(groups.centroidAss);
+  free(groups.groupLcl);
+  free(groups.maxDrift);
 }
 
 
@@ -213,7 +230,7 @@ void updatePointClusterMembership(PointData_t *pointList,
     } /* end for */
 
     // update cluster membership
-    pointList->centroid[pointIdx] = tempCentr;
+    pointList->centroids[pointIdx] = tempCentr;
   } /* end for */
 }
 
@@ -229,12 +246,12 @@ void updateCentroids(CentroidData_t *centrList, PointData_t *pointList)
     // for each dimension, sum into centroid's coords
     for(int dimIdx = 0; dimIdx < pointList->dim; dimIdx++)
     {
-      centrList->coords[pointList->centroid[pointIdx] * centrList->dim + dimIdx]
+      centrList->coords[pointList->centroids[pointIdx] * centrList->dim + dimIdx]
         += pointList->coords[pointIdx * pointList->dim + dimIdx];
     }
 
     // update number of points in cluster
-    (centrList->sizes[pointList->centroid[pointIdx]])++;
+    (centrList->sizes[pointList->centroids[pointIdx]])++;
   } /* end for */
 
 
@@ -309,7 +326,7 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
   if (mpi_rank != 0)
   {
     // send centroid assignments to rank 0
-    MPI_Send(pointList->centroid + pointList->sublistOffset,
+    MPI_Send(pointList->centroids + pointList->sublistOffset,
       pointList->sublistN,
       MPI_INTEGER,
       0, 0,
@@ -335,7 +352,7 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
     for (int i = 1; i < mpi_numProc; i++)
     {
       sendRecieveOffset = rank_0_sublist_size + ((i - 1) * rank_non_0_sublist_size);
-      MPI_Recv(pointList->centroid + sendRecieveOffset,
+      MPI_Recv(pointList->centroids + sendRecieveOffset,
         pointList->sublistN,
         MPI_INTEGER,
         i, 0,

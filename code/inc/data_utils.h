@@ -21,7 +21,7 @@
 /* ----- typedefs ----- */
 
 
-// N-Dimensional Centroid (Centroid)
+// N-Dimensional Centroids
 // A centroid has a dimension and its coordinates
 // Note that a centroid (cluster) does not need any points assiciated with it
 typedef struct {
@@ -31,11 +31,20 @@ typedef struct {
   int *sizes;               // needs to be allocated to size k
   double *coords;           // needs to be allocated to size k*dim
   double *prevCoords;       // needs to be allocated to size k*dim
-  double *maxDrift;         // needs to be allocated to size k
 } CentroidData_t;
 
 
-// N_Dimensional Data Point (Point)
+// Centroid Groups
+//
+typedef struct {
+  int numGroups;
+  int *centroidAss;         // needs to be allocated to size p
+  int *groupLcl;            // needs to be allocate to size p*n
+  double *maxDrift;         // needs to be allocated to size p
+} CentroidGroupData_t;
+
+
+// N_Dimensional Data Points
 // A point has a dimension, it's coordinates, and a centroid it's associated
 // with. Note that a point always belongs to a centroid (cluster)
 typedef struct {
@@ -43,9 +52,10 @@ typedef struct {
   int dim;
   int sublistN;             // size of sublist (used for sublisting)
   int sublistOffset;        // start sublist offset for associated lists below
-  int *centroid;            // needs to be allocated to size n
+  int *centroids;           // needs to be allocated to size n
+  int *prevCentroids;       // needs to be allocated to size n
   double *coords;           // needs to be allocated to size n*dim
-  double *lb;               // needs to be allocated to size n
+  double *lb;               // needs to be allocated to size n*p
   double *ub;               // needs to be allocated to size n
 } PointData_t;
 
@@ -70,7 +80,7 @@ typedef struct {
 /* ----- function prototypes ----- */
 
 
-void makePoints(PointData_t *pointStruct, int n, int dim);
+void makePoints(PointData_t *pointStruct, int n, int dim, int p);
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
 void makeSaveOptions(SaveOptions_t *saveOptions);
 void freePoints(PointData_t pointList, int n);

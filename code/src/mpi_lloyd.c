@@ -51,7 +51,7 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     {
       if (mpi_rank == 0)
       {
-        printf("Iterations: %d\n", iterationCntr+1);
+        // printf("Iterations: %d\n", iterationCntr+1);
       }
       break;
     }

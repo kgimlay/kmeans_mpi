@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
   int data_size;
   int data_dim;
   int num_clusters;
+  int num_cluster_groups = 1; // TODO: parse from command line as optional
   int verbose_level = DAFAULT_VERB_LEVEL;
   int maxIterations = DEFAULT_MAX_ITERATIONS;
   char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
 
   // command line parsing successful, allocate memory for point and centroid data
   makeCentroids(&centroids, num_clusters, data_dim);
-  makePoints(&points, data_size, data_dim);
+  makePoints(&points, data_size, data_dim, num_cluster_groups);
 
   // import the dataset into the pointData struct
   importCsv_double(points.coords, data_size, data_dim, dataFilePath_buff);
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
       char fileNamePath[MAX_STR_BUFF_SIZE];
       strcpy(fileNamePath, sOptions.path);
       strcat(fileNamePath, "point_assignment.csv");
-      exportCsv_int(points.centroid, points.n, 1, fileNamePath);
+      exportCsv_int(points.centroids, points.n, 1, fileNamePath);
     }
     if (sOptions.options.outCentroids)
     {
@@ -108,7 +109,7 @@ int main(int argc, char *argv[])
     // verbose level 1
     if (verbose_level >= 1)
     {
-      printf("Algo Time: %.4f\n\n", deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime));
+      printf("Algo Time: %.4f\n", deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime));
     }
 
     // verbose level 2
