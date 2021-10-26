@@ -83,9 +83,11 @@ typedef struct {
 void makePoints(PointData_t *pointStruct, int n, int dim, int p);
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
 void makeSaveOptions(SaveOptions_t *saveOptions);
+void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n);
 void freePoints(PointData_t pointList, int n);
 void freeCentroids(CentroidData_t centroidList, int k);
 void freeSaveOptions(SaveOptions_t saveOptions);
+void freeCentroidGroups(CentroidGroupData_t groups);
 double calcSquaredEuclideanDist(PointData_t *points, int pointId,
                                 CentroidData_t *centroids, int centroidId);
 void primeCentroid(CentroidData_t *centroidList);

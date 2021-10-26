@@ -3,6 +3,9 @@
 #include "../inc/data_utils.h"
 
 
+/*
+
+*/
 void makePoints(PointData_t *pointStruct, int n, int dim, int p)
 {
   // allocate lists
@@ -38,6 +41,9 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int p)
 }
 
 
+/*
+
+*/
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
 {
   // allocate lists
@@ -61,6 +67,9 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
 }
 
 
+/*
+
+*/
 void makeSaveOptions(SaveOptions_t *saveOptions)
 {
   // allocate file path
@@ -79,6 +88,9 @@ void makeSaveOptions(SaveOptions_t *saveOptions)
 }
 
 
+/*
+
+*/
 void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n)
 {
   // allocate lists
@@ -88,6 +100,9 @@ void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n)
 }
 
 
+/*
+
+*/
 void freePoints(PointData_t pointList, int n)
 {
   // free pointList fields
@@ -99,6 +114,9 @@ void freePoints(PointData_t pointList, int n)
 }
 
 
+/*
+
+*/
 void freeCentroids(CentroidData_t centroidList, int k)
 {
   // free centroidList fields
@@ -109,6 +127,9 @@ void freeCentroids(CentroidData_t centroidList, int k)
 }
 
 
+/*
+
+*/
 void freeSaveOptions(SaveOptions_t saveOptions)
 {
   // free output path buffer
@@ -116,6 +137,9 @@ void freeSaveOptions(SaveOptions_t saveOptions)
 }
 
 
+/*
+
+*/
 void freeCentroidGroups(CentroidGroupData_t groups)
 {
   free(groups.centroidAss);
