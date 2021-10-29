@@ -26,11 +26,16 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int p)
   }
 
   // assign values
-  pointStruct->n        = n;
-  pointStruct->dim      = dim;
-  pointStruct->sublistN = n;
-  pointStruct->sublistOffset = 0;
+  pointStruct->n              = n;
+  pointStruct->dim            = dim;
+  pointStruct->sublistN       = n;
+  pointStruct->sublistOffset  = 0;
 
+  // set lower bounds
+  for (int i = 0; i < n * p; i++)
+  {
+    pointStruct->ub[i] = INFINITY;
+  }
 
   /* For Debugging */
   // set centroid to all -1
@@ -97,6 +102,14 @@ void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n)
   groups->centroidAss = (int*)malloc(sizeof(int) * p);
   groups->groupLcl    = (int*)malloc(sizeof(int) * p * n);
   groups->maxDrift    = (double*)malloc(sizeof(double) * p);
+
+  // check errors with mem allocation
+  if (groups->centroidAss == NULL
+      || groups->groupLcl == NULL
+      || groups->maxDrift == NULL)
+      {
+        printf("Problem allocating memory [data_utils.c/makeCentroidGroups]\n");
+      }
 }
 
 
@@ -401,4 +414,14 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
   } /* end if mpi_rank == 0 */
 
   /** end processes divergence on rank **/
+}
+
+
+/*
+
+*/
+void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
+                            CentroidGroupData_t *centrGrpList)
+{
+
 }

@@ -99,5 +99,7 @@ void startCentroids(CentroidData_t *centrList, PointData_t *pointList);
 void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
                       int mpi_rank, int mpi_numProc, int rank_0_sublist_size,
                       int rank_non_0_sublist_size);
+void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
+                            CentroidGroupData_t *centrGrpList);
 
 #endif

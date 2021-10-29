@@ -45,8 +45,8 @@ mpi_lloyd.o: $(CODE_SRC_DIR)mpi_lloyd.c $(CODE_INC_DIR)mpi_lloyd.h
 seq_yinyang.o: $(CODE_SRC_DIR)seq_yinyang.c $(CODE_INC_DIR)seq_yinyang.h
 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)seq_yinyang.c -o $(OBJ_DIR)seq_yinyang.o
 
-# mpi_yinyang.o: $(CODE_SRC_DIR)mpi_yinyang.c $(CODE_INC_DIR)mpi_yinyang.h
-# 	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)mpi_yinyang.c -o $(OBJ_DIR)mpi_yinyang.o
+mpi_yinyang.o: $(CODE_SRC_DIR)mpi_yinyang.c $(CODE_INC_DIR)mpi_yinyang.h
+	$(CC) $(CFLAGS) $(FLAGS) $(CODE_SRC_DIR)mpi_yinyang.c -o $(OBJ_DIR)mpi_yinyang.o
 
 $(KMEANS_EXECUTABLE): kmeans_main.o \
 	file_utils.o \
@@ -57,8 +57,8 @@ $(KMEANS_EXECUTABLE): kmeans_main.o \
 	mpi_utils.o \
 	seq_lloyd.o \
 	mpi_lloyd.o \
-	seq_yinyang.o #\
-	# mpi_yinyang.o
+	seq_yinyang.o \
+	mpi_yinyang.o
 	$(CC) $(FLAGS) -o $(KMEANS_EXECUTABLE) $(OBJ_DIR)kmeans_main.o \
 	$(OBJ_DIR)file_utils.o \
 	$(OBJ_DIR)utils.o \
@@ -68,7 +68,7 @@ $(KMEANS_EXECUTABLE): kmeans_main.o \
 	$(OBJ_DIR)mpi_utils.o \
 	$(OBJ_DIR)seq_lloyd.o \
 	$(OBJ_DIR)mpi_lloyd.o \
-	$(OBJ_DIR)seq_yinyang.o #\
+	$(OBJ_DIR)seq_yinyang.o \
 	$(OBJ_DIR)mpi_yinyang.o
 
 $(KMEANS_WRAPPER_EXECUTABLE): kmeans_wrapper_main.o \
