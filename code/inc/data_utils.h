@@ -27,21 +27,15 @@
 typedef struct {
   int k;
   int dim;
+  int numGroups;
   int *groupID;             // needs to be allocated to size k
   int *sizes;               // needs to be allocated to size k
   double *coords;           // needs to be allocated to size k*dim
   double *prevCoords;       // needs to be allocated to size k*dim
+  double *drift;            // needs to be allocated to size k
+  int *centroidAss;         // needs to be allocated to size k
+
 } CentroidData_t;
-
-
-// Centroid Groups
-//
-typedef struct {
-  int numGroups;
-  int *centroidAss;         // needs to be allocated to size p
-  int *groupLcl;            // needs to be allocate to size p*n
-  double *maxDrift;         // needs to be allocated to size p
-} CentroidGroupData_t;
 
 
 // N_Dimensional Data Points
@@ -83,11 +77,9 @@ typedef struct {
 void makePoints(PointData_t *pointStruct, int n, int dim, int p);
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
 void makeSaveOptions(SaveOptions_t *saveOptions);
-void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n);
-void freePoints(PointData_t pointList, int n);
-void freeCentroids(CentroidData_t centroidList, int k);
+void freePoints(PointData_t pointList);
+void freeCentroids(CentroidData_t centroidList);
 void freeSaveOptions(SaveOptions_t saveOptions);
-void freeCentroidGroups(CentroidGroupData_t groups);
 double calcSquaredEuclideanDist(PointData_t *points, int pointId,
                                 CentroidData_t *centroids, int centroidId);
 void primeCentroid(CentroidData_t *centroidList);
@@ -100,6 +92,6 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
                       int mpi_rank, int mpi_numProc, int rank_0_sublist_size,
                       int rank_non_0_sublist_size);
 void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
-                            CentroidGroupData_t *centrGrpList);
+                            double *maxDrift, int numGroups);
 
 #endif

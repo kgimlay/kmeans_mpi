@@ -52,16 +52,20 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int p)
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
 {
   // allocate lists
-  centroidStruct->groupID    = (int*)malloc(sizeof(int) * k);
-  centroidStruct->sizes      = (int*)malloc(sizeof(int) * k);
-  centroidStruct->coords     = (double*)malloc(sizeof(double) * k * dim);
-  centroidStruct->prevCoords = (double*)malloc(sizeof(double) * k * dim);
+  centroidStruct->groupID     = (int*)malloc(sizeof(int) * k);
+  centroidStruct->sizes       = (int*)malloc(sizeof(int) * k);
+  centroidStruct->centroidAss = (int*)malloc(sizeof(int) * k);
+  centroidStruct->coords      = (double*)malloc(sizeof(double) * k * dim);
+  centroidStruct->prevCoords  = (double*)malloc(sizeof(double) * k * dim);
+  centroidStruct->drift    = (double*)malloc(sizeof(double) * k);
 
   // check errors with mem allocation
   if (centroidStruct->groupID == NULL
       || centroidStruct->sizes == NULL
       || centroidStruct->coords == NULL
-      || centroidStruct->prevCoords == NULL)
+      || centroidStruct->prevCoords == NULL
+      || centroidStruct->centroidAss == NULL
+      || centroidStruct->drift == NULL)
   {
     printf("Problem allocating memory [data_utils.c/makeCentroids]\n");
   }
@@ -96,27 +100,7 @@ void makeSaveOptions(SaveOptions_t *saveOptions)
 /*
 
 */
-void makeCentroidGroups(CentroidGroupData_t *groups, int p, int n)
-{
-  // allocate lists
-  groups->centroidAss = (int*)malloc(sizeof(int) * p);
-  groups->groupLcl    = (int*)malloc(sizeof(int) * p * n);
-  groups->maxDrift    = (double*)malloc(sizeof(double) * p);
-
-  // check errors with mem allocation
-  if (groups->centroidAss == NULL
-      || groups->groupLcl == NULL
-      || groups->maxDrift == NULL)
-      {
-        printf("Problem allocating memory [data_utils.c/makeCentroidGroups]\n");
-      }
-}
-
-
-/*
-
-*/
-void freePoints(PointData_t pointList, int n)
+void freePoints(PointData_t pointList)
 {
   // free pointList fields
   free(pointList.centroids);
@@ -130,7 +114,7 @@ void freePoints(PointData_t pointList, int n)
 /*
 
 */
-void freeCentroids(CentroidData_t centroidList, int k)
+void freeCentroids(CentroidData_t centroidList)
 {
   // free centroidList fields
   free(centroidList.groupID);
@@ -147,17 +131,6 @@ void freeSaveOptions(SaveOptions_t saveOptions)
 {
   // free output path buffer
   free(saveOptions.path);
-}
-
-
-/*
-
-*/
-void freeCentroidGroups(CentroidGroupData_t groups)
-{
-  free(groups.centroidAss);
-  free(groups.groupLcl);
-  free(groups.maxDrift);
 }
 
 
@@ -421,7 +394,7 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
 
 */
 void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
-                            CentroidGroupData_t *centrGrpList)
+                            double *maxDrift, int numGroups)
 {
 
 }

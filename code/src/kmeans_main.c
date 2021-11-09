@@ -135,8 +135,8 @@ int main(int argc, char *argv[])
   MPI_Finalize();
 
   // shut down
-  freePoints(points, data_size);
-  freeCentroids(centroids, num_clusters);
+  freePoints(points);
+  freeCentroids(centroids);
   freeSaveOptions(sOptions);
   free(dataFilePath_buff);
 
