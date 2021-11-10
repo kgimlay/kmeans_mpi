@@ -88,10 +88,10 @@ void groupCentroids(CentroidData_t *centroids, int p)
   run_seq_lloyd(&tempCentrPoints, &tempGroupCentroids, 10000);
 
   // assign groups based on results
-  // for (int i = 0; i < something; i++)
-  // {
-  //
-  // }
+  for (int i = 0; i < p; i++)
+  {
+    centroids->groupID[i] = tempCentrPoints.centroids[i];
+  }
 
   // free temporary points and centroids
   freePoints(tempCentrPoints);
@@ -102,54 +102,55 @@ void groupCentroids(CentroidData_t *centroids, int p)
 /*
 
 */
-void pointCalcsSimpleCPU(PointData_t *points, int pointIdx, CentroidData_t *centroids)
+void pointCalcsSimpleCPU(PointData_t *points, int pointIdx,
+                        CentroidData_t *centroids, double *pointLwrPtr,
+                        double *maxDriftArr, unsigned int *groupArr)
 {
-  // // index variables
-  // unsigned int centIndex, grpIndex;
-  //
-  // double compDistance;
-  //
-  // for(grpIndex = 0; grpIndex < numGrp; grpIndex++)
-  // {
-  //   // if the group is not blocked by group filter
-  //   if(groupArr[grpIndex])
-  //   {
-  //     // reset the lwrBoundArr to be only new lwrBounds
-  //     pointLwrPtr[grpIndex] = INFINITY;
-  //   }
-  // }
-  //
-  // for(centIndex = 0; centIndex < numCent; centIndex++)
-  // {
-  //   // if the centroid's group is marked in groupArr
-  //   if(groupArr[centInfo[centIndex].groupNum])
-  //   {
-  //     // if it was the originally assigned cluster, no need to calc dist
-  //     if(centIndex == pointInfoPtr->oldCentroid)
-  //     continue;
-  //
-  //     // compute distance between point and centroid
-  //     compDistance = calcDisCPU(pointDataPtr, &centData[centIndex * numDim], numDim);
-  //
-  //     if(compDistance < pointInfoPtr->uprBound)
-  //     {
-  //       pointLwrPtr[centInfo[pointInfoPtr->centroidIndex].groupNum] = pointInfoPtr->uprBound;
-  //       pointInfoPtr->centroidIndex = centIndex;
-  //       pointInfoPtr->uprBound = compDistance;
-  //     }
-  //     else if(compDistance < pointLwrPtr[centInfo[centIndex].groupNum])
-  //     {
-  //       pointLwrPtr[centInfo[centIndex].groupNum] = compDistance;
-  //     }
-  //   }
-  // }
+  // index variables
+  unsigned int centIndex, grpIndex;
+  double compDistance;
+
+  for (grpIndex = 0; grpIndex < centroids->numGroups; grpIndex++)
+  {
+    // if the group is not blocked by group filter
+    if (groupArr[pointIdx * centroids->numGroups + grpIndex])
+    {
+      // reset the lwrBoundArr to be only new lwrBounds
+      pointLwrPtr[pointIdx * centroids->numGroups + grpIndex] = INFINITY;
+    }
+  }
+
+  for (centIndex = 0; centIndex < centroids->k; centIndex++)
+  {
+    // if the centroid's group is marked in groupArr
+    if (groupArr[pointIdx * centroids->numGroups + centroids->groupID[centIndex]])
+    {
+      // if it was the originally assigned cluster, no need to calc dist
+      if (centIndex == points->prevCentroids[pointIdx])
+      continue;
+
+      // compute distance between point and centroid
+      compDistance = calcSquaredEuclideanDist(points, pointIdx, centroids, centIndex);
+
+      if (compDistance < points->ub[pointIdx])
+      {
+        pointLwrPtr[pointIdx * centroids->numGroups + centroids->groupID[points->centroids[pointIdx]]] = points->ub[pointIdx];
+        points->centroids[pointIdx] = centIndex;
+        points->ub[pointIdx] = compDistance;
+      }
+      else if(compDistance < pointLwrPtr[pointIdx * centroids->numGroups + centroids->groupID[centIndex]])
+      {
+        pointLwrPtr[pointIdx * centroids->numGroups + centroids->groupID[centIndex]] = compDistance;
+      }
+    }
+  }
 }
 
 
 /*
 
 */
-void run_lin_yin(PointData_t *pointList, CentroidData_t *centrList,
+void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
                   int numGroups, int maxIter)
 {
   // operation variables
@@ -243,7 +244,7 @@ void run_lin_yin(PointData_t *pointList, CentroidData_t *centrList,
           //                     &pointData[pntIndex*numDim], &pointLwrs[pntIndex*numGrp],
           //                     centData, maxDriftArr, &groupLclArr[pntIndex * numGrp],
           //                     numPnt, numCent, numGrp, numDim);
-          pointCalcsSimpleCPU(pointList, pntIndex, centrList);
+          // pointCalcsSimpleCPU(pointList, pntIndex, centrList);
         }
       }
     }

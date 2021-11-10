@@ -56,10 +56,10 @@ int main(int argc, char *argv[])
   {
     run_mpi_lloyd(&points, &centroids, maxIterations, mpi_numProc, mpi_rank);
   }
-  // else if (algo_select == SEQ_YINYANG)
-  // {
-  //   run_lin_yin(dataPoints, centroids, numClusters, maxIterations);
-  // }
+  else if (algo_select == SEQ_YINYANG)
+  {
+    run_seq_yin(&points, &centroids, num_cluster_groups, maxIterations);
+  }
   // else if (algo_select == MPI_YINYANG)
   // {
   //   run_mpi_yin(dataPoints, centroids, maxIterations, mpi_numProc, mpi_rank);

@@ -13,7 +13,7 @@
 
 
 // function prototypes
-void run_lin_yin(PointData_t *pointList, CentroidData_t *centrList,
+void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
                   int numGroups, int maxIter);
 
 
