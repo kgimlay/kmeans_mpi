@@ -8,59 +8,42 @@
 Function used to do an intial iteration of K-means
 */
 void initPoints(PointData_t *points, CentroidData_t *centroids, double *pointLwrs)
-              // (PointInfo *pointInfo,   -> points
-              // CentInfo *centInfo,      -> centroids
-              // DTYPE *pointData,        -> points
-              // DTYPE *pointLwrs,        -> pointLwrs
-              // DTYPE *centData,         -> centroids
-              // const int numPnt,        -> points
-              // const int numCent,       -> centroids
-              // const int numGrp,        -> centroids
-              // const int numDim,        -> points/centroids
-              // const int numThread)     -> N/A
 {
-  // unsigned int pntIndex, centIndex;
-  //
-  // DTYPE currDistance;
-  //
-  // // start single standard k-means iteration for initial bounds and cluster assignments
-  //   // assignment
-  // #pragma omp parallel \
-  // private(pntIndex, centIndex, currDistance) \
-  // shared(pointInfo, centInfo, pointData, pointLwrs, centData)
-  // {
-  //   #pragma omp for schedule(static)
-  //   for(pntIndex = 0; pntIndex < numPnt; pntIndex++)
-  //   {
-  //     pointInfo[pntIndex].uprBound = INFINITY;
-  //
-  //     // for all centroids
-  //     for(centIndex = 0; centIndex < numCent; centIndex++)
-  //     {
-  //       // currDistance is equal to the distance between the current feature
-  //       // vector being inspected, and the current centroid being compared
-  //       currDistance = calcDisCPU(&pointData[pntIndex * numDim],
-  //                                 &centData[centIndex * numDim],
-  //                                 numDim);
-  //
-  //       // if the the currDistance is less than the current minimum distance
-  //       if(currDistance < pointInfo[pntIndex].uprBound)
-  //       {
-  //         if(pointInfo[pntIndex].uprBound != INFINITY)
-  //         pointLwrs[(pntIndex * numGrp) +
-  //           centInfo[pointInfo[pntIndex].centroidIndex].groupNum] =
-  //             pointInfo[pntIndex].uprBound;
-  //         // update assignment and upper bound
-  //         pointInfo[pntIndex].centroidIndex = centIndex;
-  //         pointInfo[pntIndex].uprBound = currDistance;
-  //       }
-  //       else if(currDistance < pointLwrs[(pntIndex * numGrp) + centInfo[centIndex].groupNum])
-  //       {
-  //         pointLwrs[(pntIndex * numGrp) + centInfo[centIndex].groupNum] = currDistance;
-  //       }
-  //     }
-  //   }
-  // }
+  unsigned int pointIdx, centrIdx;
+  double currDistance;
+
+  // start single standard k-means iteration for initial bounds and cluster assignments
+  for (pointIdx = 0; pointIdx < points->n; pointIdx++)
+  {
+    // pointInfo[pntIndex].uprBound = INFINITY;
+    points->ub[pointIdx] = INFINITY;
+
+    // for all centroids
+    for (centrIdx = 0; centrIdx < centroids->k; centrIdx++)
+    {
+      // currDistance is equal to the distance between the current feature
+      // vector being inspected, and the current centroid being compared
+      currDistance = calcSquaredEuclideanDist(points, pointIdx,
+                                    centroids, points->centroids[pointIdx]);
+
+      // if the the currDistance is less than the current minimum distance
+      if (currDistance < points->ub[pointIdx])
+      {
+        if (points->ub[pointIdx] != INFINITY)
+        {
+          pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[points->centroids[pointIdx]]] = points->ub[pointIdx];
+        }
+
+        // update assignment and upper bound
+        points->centroids[pointIdx] = centrIdx;
+        points->ub[pointIdx] = currDistance;
+      }
+      else if (currDistance < pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]])
+      {
+        pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]] = currDistance;
+      }
+    }
+  }
 }
 
 
@@ -240,11 +223,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
           }
 
           // pass group array and point to go execute distance calculations
-          // pointCalcsSimpleCPU(&pointInfo[pntIndex], centInfo,
-          //                     &pointData[pntIndex*numDim], &pointLwrs[pntIndex*numGrp],
-          //                     centData, maxDriftArr, &groupLclArr[pntIndex * numGrp],
-          //                     numPnt, numCent, numGrp, numDim);
-          // pointCalcsSimpleCPU(pointList, pntIndex, centrList);
+          pointCalcsSimpleCPU(pointList, pntIndex, centrList, pointLwrs, maxDriftArr, groupLclArr);
         }
       }
     }
