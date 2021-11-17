@@ -49,7 +49,7 @@ typedef struct {
   int *centroids;           // needs to be allocated to size n
   int *prevCentroids;       // needs to be allocated to size n
   double *coords;           // needs to be allocated to size n*dim
-  double *lb;               // needs to be allocated to size n*p
+  double *lb;               // needs to be allocated to size n
   double *ub;               // needs to be allocated to size n
 } PointData_t;
 

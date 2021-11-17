@@ -13,7 +13,7 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int p)
   pointStruct->prevCentroids  = (int*)malloc(sizeof(int) * n);
   pointStruct->coords         = (double*)malloc(sizeof(double) * n * dim);
   pointStruct->ub             = (double*)malloc(sizeof(double) * n);
-  pointStruct->lb             = (double*)malloc(sizeof(double) * n * p);
+  pointStruct->lb             = (double*)malloc(sizeof(double) * n);
 
   // check errors with mem allocation
   if (pointStruct->centroids == NULL
@@ -154,6 +154,7 @@ double calcSquaredEuclideanDist(PointData_t *points, int pointId,
     tempCentrDimCoord = centroids->prevCoords[centroidId * centroids->dim + dimIdx]; // should be coords, not prevCoords?
 
     // difference, square, and sum
+    // tempSumSquared += pow(tempPointDimCoord - tempCentrDimCoord, 2);
     tempSumSquared += pow(tempPointDimCoord - tempCentrDimCoord, 2);
   }
 
