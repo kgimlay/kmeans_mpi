@@ -24,23 +24,23 @@ void initPoints(PointData_t *points, CentroidData_t *centroids, double *pointLwr
       // currDistance is equal to the distance between the current feature
       // vector being inspected, and the current centroid being compared
       currDistance = calcSquaredEuclideanDist(points, pointIdx,
-                                    centroids, points->centroids[pointIdx]);
+                                    centroids, centrIdx);
 
       // if the the currDistance is less than the current minimum distance
       if (currDistance < points->ub[pointIdx])
       {
         if (points->ub[pointIdx] != INFINITY)
         {
-          pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[points->centroids[pointIdx]]] = points->ub[pointIdx];
+          // pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[points->centroids[pointIdx]]] = points->ub[pointIdx];
         }
 
         // update assignment and upper bound
-        points->centroids[pointIdx] = centrIdx;
-        points->ub[pointIdx] = currDistance;
+        // points->centroids[pointIdx] = centrIdx;
+        // points->ub[pointIdx] = currDistance;
       }
       else if (currDistance < pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]])
       {
-        pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]] = currDistance;
+        // pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]] = currDistance;
       }
     }
   }

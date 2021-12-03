@@ -154,7 +154,6 @@ double calcSquaredEuclideanDist(PointData_t *points, int pointId,
     tempCentrDimCoord = centroids->prevCoords[centroidId * centroids->dim + dimIdx]; // should be coords, not prevCoords?
 
     // difference, square, and sum
-    // tempSumSquared += pow(tempPointDimCoord - tempCentrDimCoord, 2);
     tempSumSquared += pow(tempPointDimCoord - tempCentrDimCoord, 2);
   }
 
@@ -243,6 +242,56 @@ void updatePointClusterMembership(PointData_t *pointList,
     // update cluster membership
     pointList->centroids[pointIdx] = tempCentr;
   } /* end for */
+}
+
+
+void updatePointClusterMembership_yinyang(PointData_t *points, CentroidData_t *centroids, double *pointLwrs)
+{
+  // operation variables
+  double tempMinDist;
+  double tempDist;
+  int tempCentr = -1;
+
+  // loop over each point
+  for(int pointIdx = points->sublistOffset;
+    pointIdx < points->sublistN + points->sublistOffset;
+    pointIdx++)
+  {
+    // pointInfo[pntIndex].uprBound = INFINITY;
+    points->ub[pointIdx] = INFINITY;
+    tempMinDist = INFINITY;
+
+    // loop over each centroid for distance calculation
+    for(int centrIdx = 0; centrIdx < centroids->k; centrIdx++)
+    {
+      // calculate distance to each centroid
+      tempDist = calcSquaredEuclideanDist(points, pointIdx, centroids, centrIdx);
+
+      // if the the currDistance is less than the current minimum distance
+      // store current minimum
+      if(tempDist < tempMinDist)
+      {
+        tempCentr = centrIdx;
+        tempMinDist = tempDist;
+
+        if (points->ub[pointIdx] != INFINITY)
+        {
+          pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[points->centroids[pointIdx]]] = points->ub[pointIdx];
+        }
+
+        // update assignment and upper bound
+        points->centroids[pointIdx] = centrIdx;
+        points->ub[pointIdx] = tempDist;
+      }
+      else if (tempDist < pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]])
+      {
+        pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]] = tempDist;
+      }
+
+      // update cluster membership
+      points->centroids[pointIdx] = tempCentr;
+    }
+  }
 }
 
 
