@@ -13,7 +13,7 @@ void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
 
   // while no convergence and not at max iterations
   for(int iterationCntr = 0; iterationCntr < maxIter; iterationCntr++)
-  {
+  {printf("%d\n", iterationCntr);
     // prime centroids for next iteration
     primeCentroid(centrList);
 

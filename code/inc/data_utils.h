@@ -33,7 +33,6 @@ typedef struct {
   double *coords;           // needs to be allocated to size k*dim
   double *prevCoords;       // needs to be allocated to size k*dim
   double *drift;            // needs to be allocated to size k
-  int *centroidAss;         // needs to be allocated to size k
 
 } CentroidData_t;
 
@@ -49,7 +48,7 @@ typedef struct {
   int *centroids;           // needs to be allocated to size n
   int *prevCentroids;       // needs to be allocated to size n
   double *coords;           // needs to be allocated to size n*dim
-  double *lb;               // needs to be allocated to size n
+  double *lb;               // needs to be allocated to size n*t
   double *ub;               // needs to be allocated to size n
 } PointData_t;
 
@@ -74,7 +73,7 @@ typedef struct {
 /* ----- function prototypes ----- */
 
 
-void makePoints(PointData_t *pointStruct, int n, int dim, int p);
+void makePoints(PointData_t *pointStruct, int n, int dim, int t);
 void makeCentroids(CentroidData_t *centroidStruct, int k, int dim);
 void makeSaveOptions(SaveOptions_t *saveOptions);
 void freePoints(PointData_t pointList);

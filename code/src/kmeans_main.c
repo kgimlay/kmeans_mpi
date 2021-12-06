@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   int data_size;
   int data_dim;
   int num_clusters;
-  int num_cluster_groups = 1; // TODO: parse from command line as optional
+  int num_cluster_groups = 2; // TODO: parse from command line as optional
   int verbose_level = DAFAULT_VERB_LEVEL;
   int maxIterations = DEFAULT_MAX_ITERATIONS;
   char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));

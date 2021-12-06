@@ -6,14 +6,14 @@
 /*
 
 */
-void makePoints(PointData_t *pointStruct, int n, int dim, int p)
+void makePoints(PointData_t *pointStruct, int n, int dim, int t)
 {
   // allocate lists
   pointStruct->centroids      = (int*)malloc(sizeof(int) * n);
   pointStruct->prevCentroids  = (int*)malloc(sizeof(int) * n);
   pointStruct->coords         = (double*)malloc(sizeof(double) * n * dim);
   pointStruct->ub             = (double*)malloc(sizeof(double) * n);
-  pointStruct->lb             = (double*)malloc(sizeof(double) * n);
+  pointStruct->lb             = (double*)malloc(sizeof(double) * n * t);
 
   // check errors with mem allocation
   if (pointStruct->centroids == NULL
@@ -31,17 +31,22 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int p)
   pointStruct->sublistN       = n;
   pointStruct->sublistOffset  = 0;
 
-  // set lower bounds
-  for (int i = 0; i < n * p; i++)
-  {
-    pointStruct->ub[i] = INFINITY;
-  }
-
-  /* For Debugging */
-  // set centroid to all -1
+  // fill arrays
   for (int i = 0; i < n; i++)
   {
     pointStruct->centroids[i] = -1;
+    pointStruct->prevCentroids[i] = -1;
+    pointStruct->ub[i] = 0.0;
+
+    for (int j = 0; j < dim; j++)
+    {
+      pointStruct->coords[i * dim + j] = 0.0;
+    }
+
+    for (int j = 0; j < t; j++)
+    {
+      pointStruct->lb[i * dim + j] = 0.0;
+    }
   }
 }
 
@@ -54,7 +59,6 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
   // allocate lists
   centroidStruct->groupID     = (int*)malloc(sizeof(int) * k);
   centroidStruct->sizes       = (int*)malloc(sizeof(int) * k);
-  centroidStruct->centroidAss = (int*)malloc(sizeof(int) * k);
   centroidStruct->coords      = (double*)malloc(sizeof(double) * k * dim);
   centroidStruct->prevCoords  = (double*)malloc(sizeof(double) * k * dim);
   centroidStruct->drift    = (double*)malloc(sizeof(double) * k);
@@ -64,7 +68,6 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
       || centroidStruct->sizes == NULL
       || centroidStruct->coords == NULL
       || centroidStruct->prevCoords == NULL
-      || centroidStruct->centroidAss == NULL
       || centroidStruct->drift == NULL)
   {
     printf("Problem allocating memory [data_utils.c/makeCentroids]\n");
@@ -73,6 +76,21 @@ void makeCentroids(CentroidData_t *centroidStruct, int k, int dim)
   // assign values
   centroidStruct->k          = k;
   centroidStruct->dim        = dim;
+
+  // fill arrays
+  for (int i = 0; i < k; i++)
+  {
+    centroidStruct->sizes[i] = 0;
+    centroidStruct->drift[i] = 0.0;
+    centroidStruct->groupID[i] = -1;
+
+    // coordinates
+    for (int j = 0; j < dim; j++)
+    {
+      centroidStruct->coords[i * dim + j] = INFINITY;
+      centroidStruct->prevCoords[i * dim + j] = INFINITY;
+    }
+  }
 }
 
 
