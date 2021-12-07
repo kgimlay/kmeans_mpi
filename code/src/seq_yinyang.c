@@ -46,6 +46,76 @@ void groupCentroids(CentroidData_t *centroids, int t)
 /*
 
 */
+void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
+                          int numGroups)
+{
+    // operation variables
+    double tempMinDist;
+    double tempDist;
+    int tempCentr = -1;
+
+    // loop over each point
+    for(int pointIdx = pointList->sublistOffset; pointIdx < pointList->n; pointIdx++)
+    {
+      tempMinDist = INFINITY;
+
+      // loop over each centroid for distance calculation
+      for(int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
+      {
+        // calculate distance to each centroid
+        tempDist = calcSquaredEuclideanDist(pointList, pointIdx, centroidList, centrIdx);
+
+        // store current minimum
+        if(tempDist < tempMinDist)
+        {
+          tempCentr = centrIdx;
+          tempMinDist = tempDist;
+        }
+      } /* end for */
+
+      // update cluster membership
+      pointList->centroids[pointIdx] = tempCentr;
+
+      // set upper bound
+      pointList->ub[pointIdx] = tempMinDist;
+
+      // set lower bounds
+      // loop over each group and get distance to closest centroid of each,
+      // but next closest when evaluating group of current closest centroid
+      for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+      {
+        tempMinDist = INFINITY;
+
+        // loop over each centroid
+        for (int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
+        {
+          // pick only centroids belonging to group being evaluated
+          // ignore the closest centroid if it comes up
+          if (centroidList->groupID[centrIdx] == groupIdx
+              && centrIdx != pointList->centroids[pointIdx])
+          {
+            // calculate distance to each centroid
+            tempDist = calcSquaredEuclideanDist(pointList, pointIdx, centroidList, centrIdx);
+
+            // store current minimum
+            if(tempDist < tempMinDist)
+            {
+              tempMinDist = tempDist;
+            }
+          }
+        }
+
+        // set lower bound
+        pointList->lb[pointIdx * numGroups + groupIdx] = tempMinDist;
+      }
+
+    } /* end for */
+}
+
+
+/*
+
+*/
 void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
                   int numGroups, int maxIter)
 {
@@ -64,5 +134,45 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
   startCentroids(centrList, pointList);
   groupCentroids(centrList, numGroups);
 
-  
+  // run 1 iteration of Lloyd's for initial cluster assignments
+  run_yinyang_firstItr(pointList, centrList, numGroups);
+  // run_seq_lloyd(pointList, centrList, 1);
+
+  // now run Yinyang iterations
+  for (int iterationCntr = 1; iterationCntr < maxIter; iterationCntr++)
+  {
+    // prime for next iteration
+    primeCentroid(centrList);
+    for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+    {
+      maxDriftArr[groupIdx] = 0.0;
+    }
+
+    // update step
+    updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
+
+
+
+
+    // filtering
+    for (int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+    {
+      
+    }
+
+
+
+
+
+    // check for convergence
+    if (checkConvergence(centrList))
+    {
+      // printf("Iterations: %d\n", iterationCntr+1);
+      break;
+    }
+  }
+
+  // recalculate center of clusters
+  // updateCentroids(centrList, pointList);
+  // updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
 }

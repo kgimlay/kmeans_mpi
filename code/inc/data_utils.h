@@ -83,10 +83,8 @@ double calcSquaredEuclideanDist(PointData_t *points, int pointId,
                                 CentroidData_t *centroids, int centroidId);
 void primeCentroid(CentroidData_t *centroidList);
 bool checkConvergence(CentroidData_t *centrList);
-void updatePointClusterMembership(PointData_t *pointList,
+void assignCentroids(PointData_t *pointList,
                                   CentroidData_t *centroidList);
-void updatePointClusterMembership_yinyang(PointData_t *points,
-                                  CentroidData_t *centroids, double *pointLwrs);
 void updateCentroids(CentroidData_t *centrList, PointData_t *pointList);
 void startCentroids(CentroidData_t *centrList, PointData_t *pointList);
 void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,

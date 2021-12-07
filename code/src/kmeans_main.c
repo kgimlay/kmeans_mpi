@@ -109,7 +109,8 @@ int main(int argc, char *argv[])
     // verbose level 1
     if (verbose_level >= 1)
     {
-      printf("Algo Time: %.4f\n", deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime));
+      printf("\n\n");
+      printf("Algo Time: %.4f\n\n", deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime));
     }
 
     // verbose level 2
@@ -126,6 +127,7 @@ int main(int argc, char *argv[])
       }
       printf("\n");
     }
+    printf("\n");
 
     // verbose level 3
     // TODO: more verbosity levels

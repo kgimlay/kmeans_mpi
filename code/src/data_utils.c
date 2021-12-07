@@ -179,31 +179,6 @@ double calcSquaredEuclideanDist(PointData_t *points, int pointId,
 }
 
 
-
-/*
-
-*/
-void primeCentroid(CentroidData_t *centroidList)
-{
-  // loop over each centroid
-  for(int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
-  {
-    // store current centroid pos into previous
-    for(int dimIdx = 0; dimIdx < centroidList->dim; dimIdx++)
-    {
-      // centroidList[centrIdx].prevCoords[dimIdx] = centroidList[centrIdx].coords[dimIdx];
-      // centroidList[centrIdx].coords[dimIdx] = 0.0;
-      centroidList->prevCoords[centrIdx * centroidList->dim + dimIdx]
-        = centroidList->coords[centrIdx * centroidList->dim + dimIdx];
-      centroidList->coords[centrIdx * centroidList->dim + dimIdx] = 0.0;
-    }
-
-    // reset size for average calculation
-    centroidList->sizes[centrIdx] = 0;
-  }
-}
-
-
 /*
 
 */
@@ -228,7 +203,7 @@ bool checkConvergence(CentroidData_t *centrList)
 /*
 
 */
-void updatePointClusterMembership(PointData_t *pointList,
+void assignCentroids(PointData_t *pointList,
                                   CentroidData_t *centroidList)
 {
   // operation variables
@@ -259,89 +234,6 @@ void updatePointClusterMembership(PointData_t *pointList,
 
     // update cluster membership
     pointList->centroids[pointIdx] = tempCentr;
-  } /* end for */
-}
-
-
-void updatePointClusterMembership_yinyang(PointData_t *points, CentroidData_t *centroids, double *pointLwrs)
-{
-  // operation variables
-  double tempMinDist;
-  double tempDist;
-  int tempCentr = -1;
-
-  // loop over each point
-  for(int pointIdx = points->sublistOffset;
-    pointIdx < points->sublistN + points->sublistOffset;
-    pointIdx++)
-  {
-    // pointInfo[pntIndex].uprBound = INFINITY;
-    points->ub[pointIdx] = INFINITY;
-    tempMinDist = INFINITY;
-
-    // loop over each centroid for distance calculation
-    for(int centrIdx = 0; centrIdx < centroids->k; centrIdx++)
-    {
-      // calculate distance to each centroid
-      tempDist = calcSquaredEuclideanDist(points, pointIdx, centroids, centrIdx);
-
-      // if the the currDistance is less than the current minimum distance
-      // store current minimum
-      if(tempDist < tempMinDist)
-      {
-        tempCentr = centrIdx;
-        tempMinDist = tempDist;
-
-        if (points->ub[pointIdx] != INFINITY)
-        {
-          pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[points->centroids[pointIdx]]] = points->ub[pointIdx];
-        }
-
-        // update assignment and upper bound
-        points->centroids[pointIdx] = centrIdx;
-        points->ub[pointIdx] = tempDist;
-      }
-      else if (tempDist < pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]])
-      {
-        pointLwrs[(pointIdx * centroids->numGroups) + centroids->groupID[centrIdx]] = tempDist;
-      }
-
-      // update cluster membership
-      points->centroids[pointIdx] = tempCentr;
-    }
-  }
-}
-
-
-/*
-
-*/
-void updateCentroids(CentroidData_t *centrList, PointData_t *pointList)
-{
-  // loop over each point
-  for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
-  {
-    // for each dimension, sum into centroid's coords
-    for(int dimIdx = 0; dimIdx < pointList->dim; dimIdx++)
-    {
-      centrList->coords[pointList->centroids[pointIdx] * centrList->dim + dimIdx]
-        += pointList->coords[pointIdx * pointList->dim + dimIdx];
-    }
-
-    // update number of points in cluster
-    (centrList->sizes[pointList->centroids[pointIdx]])++;
-  } /* end for */
-
-
-  // loop over each centroid and average coords
-  for(int centrIdx = 0; centrIdx < centrList->k; centrIdx++)
-  {
-    // average
-    for(int dimIdx = 0; dimIdx < centrList->dim; dimIdx++)
-    {
-      centrList->coords[centrIdx * centrList->dim + dimIdx]
-        /= centrList->sizes[centrIdx];
-    }
   } /* end for */
 }
 
@@ -387,6 +279,64 @@ void startCentroids(CentroidData_t *centrList, PointData_t *pointList)
       }
     }
   #endif
+}
+
+
+
+/*
+
+*/
+void primeCentroid(CentroidData_t *centroidList)
+{
+  // loop over each centroid
+  for(int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
+  {
+    // store current centroid pos into previous
+    for(int dimIdx = 0; dimIdx < centroidList->dim; dimIdx++)
+    {
+      // centroidList[centrIdx].prevCoords[dimIdx] = centroidList[centrIdx].coords[dimIdx];
+      // centroidList[centrIdx].coords[dimIdx] = 0.0;
+      centroidList->prevCoords[centrIdx * centroidList->dim + dimIdx]
+        = centroidList->coords[centrIdx * centroidList->dim + dimIdx];
+      centroidList->coords[centrIdx * centroidList->dim + dimIdx] = 0.0;
+    }
+
+    // reset size for average calculation
+    centroidList->sizes[centrIdx] = 0;
+  }
+}
+
+
+/*
+
+*/
+void updateCentroids(CentroidData_t *centrList, PointData_t *pointList)
+{
+  // loop over each point
+  for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+  {
+    // for each dimension, sum into centroid's coords
+    for(int dimIdx = 0; dimIdx < pointList->dim; dimIdx++)
+    {
+      centrList->coords[pointList->centroids[pointIdx] * centrList->dim + dimIdx]
+        += pointList->coords[pointIdx * pointList->dim + dimIdx];
+    }
+
+    // update number of points in cluster
+    (centrList->sizes[pointList->centroids[pointIdx]])++;
+  } /* end for */
+
+
+  // loop over each centroid and average coords
+  for(int centrIdx = 0; centrIdx < centrList->k; centrIdx++)
+  {
+    // average
+    for(int dimIdx = 0; dimIdx < centrList->dim; dimIdx++)
+    {
+      centrList->coords[centrIdx * centrList->dim + dimIdx]
+        /= centrList->sizes[centrIdx];
+    }
+  } /* end for */
 }
 
 
@@ -464,5 +414,38 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
 void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
                             double *maxDrift, int numGroups)
 {
+  double tempDrift;
 
+  // loop over each point
+  for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+  {
+    // for each dimension, sum into centroid's coords
+    for(int dimIdx = 0; dimIdx < pointList->dim; dimIdx++)
+    {
+      centrList->coords[pointList->centroids[pointIdx] * centrList->dim + dimIdx]
+        += pointList->coords[pointIdx * pointList->dim + dimIdx];
+    }
+
+    // update number of points in cluster
+    (centrList->sizes[pointList->centroids[pointIdx]])++;
+  } /* end for */
+
+
+  // loop over each centroid and average coords
+  for(int centrIdx = 0; centrIdx < centrList->k; centrIdx++)
+  {
+    // average
+    for(int dimIdx = 0; dimIdx < centrList->dim; dimIdx++)
+    {
+      centrList->coords[centrIdx * centrList->dim + dimIdx]
+        /= centrList->sizes[centrIdx];
+    }
+
+    // set max drift
+    tempDrift = 0;
+    if (tempDrift > maxDrift[centrList->groupID[centrIdx]])
+    {
+      maxDrift[centrList->groupID[centrIdx]] = tempDrift;
+    }
+  } /* end for */
 }

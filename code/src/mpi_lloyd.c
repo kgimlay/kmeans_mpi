@@ -39,7 +39,7 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     primeCentroid(centrList);
 
     // re-member points to clusters
-    updatePointClusterMembership(pointList, centrList);
+    assignCentroids(pointList, centrList);
 
     // recalculate center of clusters
     // pricess divergence on rank inside of here
