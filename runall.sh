@@ -1,6 +1,7 @@
 #!#!/usr/bin/env bash
 
 DATA_SET_PATH="./datasets/M.csv"
+DATA_SET_PATH="./datasets/higgs_normalize_0_1.csv"
 DATA_SIZE=1000000
 DATA_DIM=2
 MPI_NUMPROC=8
@@ -30,26 +31,28 @@ do
     echo "Iteration" $i
   fi
 
-  #### sequential execution
-
-  # lloyd
+  #### sequential lloyd
+  echo "Sequential Lloyd's"
   ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM SEQ_LLOYD $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
   if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
   fi
 
-  # yinyang
-
-  #### mpi execution
-  ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM SEQ_YINYANG $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
-  if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
-  fi
-
-  # lloyd
+  #### mpi lloyd
+  echo "MPI Lloyd's"
   mpiexec -np $MPI_NUMPROC ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM MPI_LLOYD $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
   if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
   fi
 
-  # yinyang
+  #### sequential yinyang
+  echo "Sequential YinYang"
+  ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM SEQ_YINYANG $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
+  if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
+  fi
 
+  #### mpi yinyang
+  echo "MPI YinYang"
+  mpiexec -np $MPI_NUMPROC ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM MPI_YINYANG $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
+  if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
+  fi
 
 done
