@@ -63,7 +63,7 @@ void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
       for(int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
       {
         // calculate distance to each centroid
-        tempDist = calcSquaredEuclideanDist(pointList, pointIdx, centroidList, centrIdx);
+        tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centroidList, centrIdx);
 
         // store current minimum
         if(tempDist < tempMinDist)
@@ -95,7 +95,7 @@ void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
               && centrIdx != pointList->centroids[pointIdx])
           {
             // calculate distance to each centroid
-            tempDist = calcSquaredEuclideanDist(pointList, pointIdx, centroidList, centrIdx);
+            tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centroidList, centrIdx);
 
             // store current minimum
             if(tempDist < tempMinDist)
@@ -151,7 +151,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
 
     // update step
     updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
-
+    return;
 
 
 
@@ -179,7 +179,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
       if (tmpGlobLwr < pointList->ub[pointIdx])
       {
         // tighten upper bound
-        pointList->ub[pointIdx] = calcSquaredEuclideanDist(pointList, pointIdx, centrList, pointList->centroids[pointIdx]);
+        pointList->ub[pointIdx] = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, pointList->centroids[pointIdx]);
 
         // check upper bound again
         if (tmpGlobLwr < pointList->ub[pointIdx])
@@ -220,7 +220,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
               }
 
               // compute distance between point and centroid
-              tempDist = calcSquaredEuclideanDist(pointList, pointIdx, centrList, centroidIdx);
+              tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, centroidIdx);
 
               // if less, reassign centroid
               if (tempDist < pointList->ub[pointIdx])
@@ -239,6 +239,17 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
         }
       }
     }
+
+    // printf("Centroids:\n");
+    // for (int i = 0; i < centrList->k; i++)
+    // {
+    //   for (int j = 0; j < centrList->dim; j++)
+    //   {
+    //     printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+    //   }
+    //   printf("\n");
+    // }
+    // printf("\n");
 
 
 

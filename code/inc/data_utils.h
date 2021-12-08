@@ -80,6 +80,8 @@ void freeCentroids(CentroidData_t centroidList);
 void freeSaveOptions(SaveOptions_t saveOptions);
 double calcSquaredEuclideanDist(PointData_t *points, int pointId,
                                 CentroidData_t *centroids, int centroidId);
+double calcSquaredEuclideanDist_yinyang(PointData_t *points, int pointId,
+                                CentroidData_t *centroids, int centroidId);
 void primeCentroid(CentroidData_t *centroidList);
 bool checkConvergence(CentroidData_t *centrList);
 void assignCentroids(PointData_t *pointList,

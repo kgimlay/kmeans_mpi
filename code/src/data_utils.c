@@ -157,6 +157,12 @@ void freeSaveOptions(SaveOptions_t saveOptions)
 */
 double calcSquaredEuclideanDist_general(double *data1, double *data2, int dimensionality)
 {
+
+
+    // printf("Point: %.3f, %.3f\n", data1[0], data1[1] );
+    // printf("Cent: %.3f, %.3f\n", data2[0], data2[1] );
+
+
   // operaiton variables
   double tempSumSquared = 0.0;
 
@@ -179,6 +185,18 @@ double calcSquaredEuclideanDist(PointData_t *points, int pointId,
 {
   return calcSquaredEuclideanDist_general(&points->coords[pointId * points->dim],
     &centroids->prevCoords[centroidId * centroids->dim],
+    points->dim);
+}
+
+
+/*
+
+*/
+double calcSquaredEuclideanDist_yinyang(PointData_t *points, int pointId,
+  CentroidData_t *centroids, int centroidId)
+{
+  return calcSquaredEuclideanDist_general(&points->coords[pointId * points->dim],
+    &centroids->coords[centroidId * centroids->dim],
     points->dim);
 }
 

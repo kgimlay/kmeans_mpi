@@ -30,13 +30,26 @@ do
     echo "Iteration" $i
   fi
 
-  # sequential execution
+  #### sequential execution
+
+  # lloyd
   ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM SEQ_LLOYD $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
   if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
   fi
 
-  # mpi execution
+  # yinyang
+
+  #### mpi execution
+  ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM SEQ_YINYANG $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
+  if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
+  fi
+
+  # lloyd
   mpiexec -np $MPI_NUMPROC ./kmeans_main $DATA_SET_PATH $DATA_SIZE $DATA_DIM MPI_LLOYD $NUM_CENTROIDS -s ./output/ -v $VERBOSITY -i $MAX_ITER
   if [ ! $? -eq 0 ]; then echo 'An error occurred! shutting down test\n' & exit
   fi
+
+  # yinyang
+
+
 done
