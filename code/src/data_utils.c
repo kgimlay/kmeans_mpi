@@ -155,27 +155,31 @@ void freeSaveOptions(SaveOptions_t saveOptions)
 /*
 
 */
-double calcSquaredEuclideanDist(PointData_t *points, int pointId,
-  CentroidData_t *centroids, int centroidId)
+double calcSquaredEuclideanDist_general(double *data1, double *data2, int dimensionality)
 {
   // operaiton variables
-  int dimensionality = points->dim;
   double tempSumSquared = 0.0;
-  double tempPointDimCoord;
-  double tempCentrDimCoord;
 
   // loop over each dimension
   for(int dimIdx = 0; dimIdx < dimensionality; dimIdx++)
   {
-    // get dimensional coordinates
-    tempPointDimCoord = points->coords[pointId * points->dim + dimIdx];
-    tempCentrDimCoord = centroids->prevCoords[centroidId * centroids->dim + dimIdx]; // should be coords, not prevCoords?
-
     // difference, square, and sum
-    tempSumSquared += pow(tempPointDimCoord - tempCentrDimCoord, 2);
+    tempSumSquared += pow(data1[dimIdx] - data2[dimIdx], 2);
   }
 
   return tempSumSquared;
+}
+
+
+/*
+
+*/
+double calcSquaredEuclideanDist(PointData_t *points, int pointId,
+  CentroidData_t *centroids, int centroidId)
+{
+  return calcSquaredEuclideanDist_general(&points->coords[pointId * points->dim],
+    &centroids->prevCoords[centroidId * centroids->dim],
+    points->dim);
 }
 
 
@@ -442,7 +446,9 @@ void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
     }
 
     // set max drift
-    tempDrift = 0;
+    tempDrift = calcSquaredEuclideanDist_general(&centrList->coords[centrIdx * centrList->dim],
+      &centrList->prevCoords[centrIdx * centrList->dim],
+      centrList->dim);
     if (tempDrift > maxDrift[centrList->groupID[centrIdx]])
     {
       maxDrift[centrList->groupID[centrIdx]] = tempDrift;

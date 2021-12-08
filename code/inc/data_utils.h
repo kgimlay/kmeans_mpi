@@ -33,7 +33,6 @@ typedef struct {
   double *coords;           // needs to be allocated to size k*dim
   double *prevCoords;       // needs to be allocated to size k*dim
   double *drift;            // needs to be allocated to size k
-
 } CentroidData_t;
 
 
