@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   int data_size;
   int data_dim;
   int num_clusters;
-  int num_cluster_groups = 1;
+  int num_cluster_groups = 3;
   int verbose_level = DAFAULT_VERB_LEVEL;
   int maxIterations = DEFAULT_MAX_ITERATIONS;
   char *dataFilePath_buff = (char*)calloc(MAX_STR_BUFF_SIZE, sizeof(char));
@@ -74,34 +74,34 @@ int main(int argc, char *argv[])
   timeMetrics.algoEndTime = wallTime();
 
   // save results, if output specified
-  // if (mpi_rank == 0 && strlen(sOptions.path) != 0)
-  // {
-  //   if (sOptions.options.outPoints)
-  //   {
-  //     // save point assignemnt
-  //     char fileNamePath[MAX_STR_BUFF_SIZE];
-  //     strcpy(fileNamePath, sOptions.path);
-  //     strcat(fileNamePath, "point_assignment.csv");
-  //     exportCsv_int(points.centroids, points.n, 1, fileNamePath);
-  //   }
-  //   if (sOptions.options.outCentroids)
-  //   {
-  //     // save centroid coords
-  //     char fileNamePath[MAX_STR_BUFF_SIZE];
-  //     strcpy(fileNamePath, sOptions.path);
-  //     strcat(fileNamePath, "centroid_coords.csv");
-  //     exportCsv_double(centroids.coords, centroids.k, centroids.dim, fileNamePath);
-  //   }
-  //   if (sOptions.options.outTime)
-  //   {
-  //     // save timeMetrics information
-  //     char fileNamePath[MAX_STR_BUFF_SIZE];
-  //     strcpy(fileNamePath, sOptions.path);
-  //     strcat(fileNamePath, "timeMetrics_metrics.csv");
-  //     double timeMetricsArr[1] = {deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime)};
-  //     exportCsv_double(timeMetricsArr, 1, 1, fileNamePath);
-  //   }
-  // }
+  if (mpi_rank == 0 && strlen(sOptions.path) != 0)
+  {
+    if (sOptions.options.outPoints)
+    {
+      // save point assignemnt
+      char fileNamePath[MAX_STR_BUFF_SIZE];
+      strcpy(fileNamePath, sOptions.path);
+      strcat(fileNamePath, "point_assignment.csv");
+      exportCsv_int(points.centroids, points.n, 1, fileNamePath);
+    }
+    if (sOptions.options.outCentroids)
+    {
+      // save centroid coords
+      char fileNamePath[MAX_STR_BUFF_SIZE];
+      strcpy(fileNamePath, sOptions.path);
+      strcat(fileNamePath, "centroid_coords.csv");
+      exportCsv_double(centroids.coords, centroids.k, centroids.dim, fileNamePath);
+    }
+    if (sOptions.options.outTime)
+    {
+      // save timeMetrics information
+      char fileNamePath[MAX_STR_BUFF_SIZE];
+      strcpy(fileNamePath, sOptions.path);
+      strcat(fileNamePath, "timeMetrics_metrics.csv");
+      double timeMetricsArr[1] = {deltaTime(timeMetrics.algoStartTime, timeMetrics.algoEndTime)};
+      exportCsv_double(timeMetricsArr, 1, 1, fileNamePath);
+    }
+  }
 
   // report results
   if (mpi_rank == 0)

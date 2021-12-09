@@ -135,10 +135,10 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
     // update step
     updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
 
-    for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
-    {
-      printf("Max Drift: %.3f\n", maxDriftArr[groupIdx]);
-    }
+    // for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+    // {
+    //   printf("Max Drift: %.3f\n", maxDriftArr[groupIdx]);
+    // }
 
 
     // filtering
@@ -196,7 +196,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
           for (int centroidIdx = 0; centroidIdx < centrList->k; centroidIdx++)
           {
             // if centroid's group is marked
-            if (groupLclArr[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]])
+            if (groupLclArr[pointIdx * numGroups + centrList->groupID[centroidIdx]])
             {
               // skip if centroid assignment did not change
               if (centroidIdx == pointList->prevCentroids[pointIdx])
@@ -249,5 +249,5 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
   }
 
   // recalculate center of clusters
-  // updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
+  updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
 }
