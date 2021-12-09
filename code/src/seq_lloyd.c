@@ -23,6 +23,17 @@ void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // recalculate center of clusters
     updateCentroids(centrList, pointList);
 
+    // printf("Centroids:\n");
+    for (int i = 0; i < centrList->k; i++)
+    {
+      for (int j = 0; j < centrList->dim; j++)
+      {
+        printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+      }
+      printf("\n");
+    }
+    printf("\n");
+
     // check for convergence
     if (checkConvergence(centrList))
     {

@@ -55,7 +55,7 @@ void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
     int tempCentr = -1;
 
     // loop over each point
-    for(int pointIdx = pointList->sublistOffset; pointIdx < pointList->n; pointIdx++)
+    for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
     {
       tempMinDist = INFINITY;
 
@@ -139,9 +139,22 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
   run_yinyang_firstItr(pointList, centrList, numGroups);
   // run_seq_lloyd(pointList, centrList, 1);
 
+  // printf("Centroids:\n");
+  for (int i = 0; i < centrList->k; i++)
+  {
+    for (int j = 0; j < centrList->dim; j++)
+    {
+      printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+
   // now run Yinyang iterations
   for (int iterationCntr = 1; iterationCntr < maxIter; iterationCntr++)
   {
+    printf("Iteration: %d\n", iterationCntr);
+
     // prime for next iteration
     primeCentroid(centrList);
     for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
@@ -151,9 +164,11 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
 
     // update step
     updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
-    return;
 
-
+    for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+    {
+      printf("Max Drift: %.3f\n", maxDriftArr[groupIdx]);
+    }
 
 
     // filtering
@@ -241,15 +256,15 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
     }
 
     // printf("Centroids:\n");
-    // for (int i = 0; i < centrList->k; i++)
-    // {
-    //   for (int j = 0; j < centrList->dim; j++)
-    //   {
-    //     printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
-    //   }
-    //   printf("\n");
-    // }
-    // printf("\n");
+    for (int i = 0; i < centrList->k; i++)
+    {
+      for (int j = 0; j < centrList->dim; j++)
+      {
+        printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+      }
+      printf("\n");
+    }
+    printf("\n");
 
 
 
@@ -264,5 +279,5 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
   }
 
   // recalculate center of clusters
-  updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
+  // updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
 }

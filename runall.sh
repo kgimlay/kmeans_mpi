@@ -1,7 +1,7 @@
 #!#!/usr/bin/env bash
 
 DATA_SET_PATH="./datasets/M.csv"
-DATA_SET_PATH="./datasets/higgs_normalize_0_1.csv"
+# DATA_SET_PATH="./datasets/higgs_normalize_0_1.csv"
 DATA_SIZE=1000000
 DATA_DIM=2
 MPI_NUMPROC=8
@@ -9,7 +9,7 @@ NUM_CENTROIDS=9
 VERBOSITY=2
 REPEAT_NUM=0
 DO_BUILD=1
-MAX_ITER=20
+MAX_ITER=10
 
 # build, if specified
 # if [ $DO_BUILD -eq 1 ];
