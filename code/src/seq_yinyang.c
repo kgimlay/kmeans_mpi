@@ -51,7 +51,6 @@ void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
 {
     // operation variables
     double tempDist;
-    int tempCentr = -1;
 
     // loop over each point
     for (int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
@@ -233,7 +232,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
       {
         printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
       }
-      printf("\n");
+      printf("Group: %d\n", centrList->groupID[i]);
     }
     printf("\n");
 
