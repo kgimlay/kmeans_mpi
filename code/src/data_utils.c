@@ -438,6 +438,19 @@ void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
 {
   double tempDrift;
 
+  for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+  {
+    maxDrift[groupIdx] = 0.0;
+  }
+  for (int centroidIdx = 0; centroidIdx < centrList->k; centroidIdx++)
+  {
+    for (int dimIdx = 0; dimIdx < centrList->dim; dimIdx++)
+    {
+      centrList->coords[centroidIdx * centrList->dim + dimIdx] = 0.0;
+    }
+    centrList->sizes[centroidIdx] = 0;
+  }
+
   // loop over each point
   for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
   {
@@ -471,5 +484,6 @@ void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
     {
       maxDrift[centrList->groupID[centrIdx]] = tempDrift;
     }
+    centrList->drift[centrIdx] = tempDrift;
   } /* end for */
 }
