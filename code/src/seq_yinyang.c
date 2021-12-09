@@ -50,64 +50,35 @@ void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
                           int numGroups)
 {
     // operation variables
-    double tempMinDist;
     double tempDist;
     int tempCentr = -1;
 
     // loop over each point
-    for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+    for (int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
     {
-      tempMinDist = INFINITY;
+      pointList->ub[pointIdx] = INFINITY;
 
       // loop over each centroid for distance calculation
-      for(int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
+      for (int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
       {
         // calculate distance to each centroid
         tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centroidList, centrIdx);
 
         // store current minimum
-        if(tempDist < tempMinDist)
+        if (tempDist < pointList->ub[pointIdx])
         {
-          tempCentr = centrIdx;
-          tempMinDist = tempDist;
+          if (pointList->ub[pointIdx] != INFINITY)
+          {
+            pointList->lb[pointIdx * numGroups + centroidList->groupID[pointList->centroids[pointIdx]]] = pointList->ub[pointIdx];
+          }
+          pointList->centroids[pointIdx] = centrIdx;
+          pointList->ub[pointIdx] = tempDist;
+        }
+        else if (tempDist < pointList->lb[pointIdx * numGroups + centroidList->groupID[centrIdx]])
+        {
+          pointList->lb[pointIdx * numGroups + centroidList->groupID[centrIdx]] = tempDist;
         }
       } /* end for */
-
-      // update cluster membership
-      pointList->centroids[pointIdx] = tempCentr;
-
-      // set upper bound
-      pointList->ub[pointIdx] = tempMinDist;
-
-      // set lower bounds
-      // loop over each group and get distance to closest centroid of each,
-      // but next closest when evaluating group of current closest centroid
-      for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
-      {
-        tempMinDist = INFINITY;
-
-        // loop over each centroid
-        for (int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
-        {
-          // pick only centroids belonging to group being evaluated
-          // ignore the closest centroid if it comes up
-          if (centroidList->groupID[centrIdx] == groupIdx
-              && centrIdx != pointList->centroids[pointIdx])
-          {
-            // calculate distance to each centroid
-            tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centroidList, centrIdx);
-
-            // store current minimum
-            if(tempDist < tempMinDist)
-            {
-              tempMinDist = tempDist;
-            }
-          }
-        }
-
-        // set lower bound
-        pointList->lb[pointIdx * numGroups + groupIdx] = tempMinDist;
-      }
 
     } /* end for */
 }
