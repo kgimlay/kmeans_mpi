@@ -15,6 +15,8 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int t)
   pointStruct->ub             = (double*)malloc(sizeof(double) * n);
   pointStruct->lb             = (double*)malloc(sizeof(double) * n * t);
 
+  // printf("::: %d * %d = %d\n", n, t, n*t);
+
   // check errors with mem allocation
   if (pointStruct->centroids == NULL
       || pointStruct->prevCentroids == NULL
@@ -42,10 +44,13 @@ void makePoints(PointData_t *pointStruct, int n, int dim, int t)
     {
       pointStruct->coords[i * dim + j] = 0.0;
     }
+  }
 
+  for (int i = 0; i < n; i++)
+  {
     for (int j = 0; j < t; j++)
     {
-      pointStruct->lb[i * dim + j] = 0.0;
+      pointStruct->lb[i * t + j] = 0.0;
     }
   }
 }
@@ -502,36 +507,36 @@ void updateCentroids_yinyangMPI(CentroidData_t *centrList, PointData_t *pointLis
   if (mpi_rank != 0)
   {
     // send centroid assignments
-    MPI_Send(pointList->centroids + pointList->sublistOffset,
-      pointList->sublistN,
-      MPI_INTEGER,
-      0, 0,
-      MPI_COMM_WORLD);
+    // MPI_Send(pointList->centroids + pointList->sublistOffset,
+    //   pointList->sublistN,
+    //   MPI_INTEGER,
+    //   0, 0,
+    //   MPI_COMM_WORLD);
 
     // receive new centroid locations,
-    MPI_Status status;
-    MPI_Recv(centrList->coords,
-      centrList->k * centrList->dim,
-      MPI_DOUBLE,
-      0, 0,
-      MPI_COMM_WORLD,
-      &status);
+    // MPI_Status status;
+    // MPI_Recv(centrList->coords,
+    //   centrList->k * centrList->dim,
+    //   MPI_DOUBLE,
+    //   0, 0,
+    //   MPI_COMM_WORLD,
+    //   &status);
 
     // receive centroid drifts,
-    MPI_Recv(centrList->drift,
-      centrList->k,
-      MPI_DOUBLE,
-      0, 0,
-      MPI_COMM_WORLD,
-      &status);
+    // MPI_Recv(centrList->drift,
+    //   centrList->k,
+    //   MPI_DOUBLE,
+    //   0, 0,
+    //   MPI_COMM_WORLD,
+    //   &status);
 
     // receive group max drifts
-    MPI_Recv(maxDrift,
-      numGroups,
-      MPI_DOUBLE,
-      0, 0,
-      MPI_COMM_WORLD,
-      &status);
+    // MPI_Recv(maxDrift,
+    //   numGroups,
+    //   MPI_DOUBLE,
+    //   0, 0,
+    //   MPI_COMM_WORLD,
+    //   &status);
   }
 
   // is rank 0: receive all required information, compute, and send back results
@@ -542,13 +547,13 @@ void updateCentroids_yinyangMPI(CentroidData_t *centrList, PointData_t *pointLis
     int sendRecieveOffset;
     for (int i = 1; i < mpi_numProc; i++)
     {
-      sendRecieveOffset = rank_0_sublist_size + ((i - 1) * rank_non_0_sublist_size);
-      MPI_Recv(pointList->centroids + sendRecieveOffset,
-        pointList->sublistN,
-        MPI_INTEGER,
-        i, 0,
-        MPI_COMM_WORLD,
-        &status);
+      // sendRecieveOffset = rank_0_sublist_size + ((i - 1) * rank_non_0_sublist_size);
+      // MPI_Recv(pointList->centroids + sendRecieveOffset,
+      //   pointList->sublistN,
+      //   MPI_INTEGER,
+      //   i, 0,
+      //   MPI_COMM_WORLD,
+      //   &status);
     }
 
     // recalculate center of clusters
@@ -557,33 +562,33 @@ void updateCentroids_yinyangMPI(CentroidData_t *centrList, PointData_t *pointLis
     // send centroid locations,
     for (int i = 1; i < mpi_numProc; i++)
     {
-      sendRecieveOffset = (rank_0_sublist_size * pointList->dim)
-          + ((i - 1) * rank_non_0_sublist_size);
-      MPI_Send(centrList->coords,
-        centrList->k * centrList->dim,
-        MPI_DOUBLE,
-        i, 0,
-        MPI_COMM_WORLD);
+      // sendRecieveOffset = (rank_0_sublist_size * pointList->dim)
+      //     + ((i - 1) * rank_non_0_sublist_size);
+      // MPI_Send(centrList->coords,
+      //   centrList->k * centrList->dim,
+      //   MPI_DOUBLE,
+      //   i, 0,
+      //   MPI_COMM_WORLD);
     }
 
     // send centroid drifts,
     for (int i = 1; i < mpi_numProc; i++)
     {
-      MPI_Send(centrList->drift,
-        centrList->k,
-        MPI_DOUBLE,
-        i, 0,
-        MPI_COMM_WORLD);
+      // MPI_Send(centrList->drift,
+      //   centrList->k,
+      //   MPI_DOUBLE,
+      //   i, 0,
+      //   MPI_COMM_WORLD);
     }
 
     // send and group max drifts
     for (int i = 1; i < mpi_numProc; i++)
     {
-      MPI_Send(maxDrift,
-        numGroups,
-        MPI_DOUBLE,
-        i, 0,
-        MPI_COMM_WORLD);
+      // MPI_Send(maxDrift,
+      //   numGroups,
+      //   MPI_DOUBLE,
+      //   i, 0,
+      //   MPI_COMM_WORLD);
     }
   }
 }

@@ -14,6 +14,8 @@ static void groupCentroids(CentroidData_t *centroids, int t)
   PointData_t centPoints;
   CentroidData_t centCentroids;
 
+  // printf("::: %d * %d = %d\n", numCentroids, t, numCentroids*t);
+
   // store centroid data into points
   makePoints(&centPoints, numCentroids, dim, t);
   for (int i = 0; i < numCentroids; i++)
@@ -95,6 +97,11 @@ void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList,
   double tmpGlobLwr = INFINITY;
   bool *groupLclArr = (bool *)malloc(sizeof(bool) * pointList->n * numGroups);
 
+  if (maxDriftArr == NULL || groupLclArr == NULL)
+  {
+    printf("Problem allocating memory! [mpi_yinyang.c]\n");
+  }
+
   // initiatilize to INFINITY
   for(int i = 0; i < pointList->n * numGroups; i++)
   {
@@ -119,7 +126,12 @@ void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList,
     pointList->sublistOffset = 0;
   }
 
+  // printf("Rank %d sublist: %d, offset: %d\n", mpi_rank, pointList->sublistN, pointList->sublistOffset);
+
   /** end processes divergence on rank **/
+
+
+    // printf("::: %d * %d = %d\n", centrList->k, numGroups, centrList->k*numGroups);
 
   // cluster the centroids into t groups
   startCentroids(centrList, pointList);
