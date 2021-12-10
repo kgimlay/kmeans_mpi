@@ -6,7 +6,7 @@
 /*
 
 */
-void groupCentroids(CentroidData_t *centroids, int t)
+static void groupCentroids(CentroidData_t *centroids, int t)
 {
   // operation variables
   int numCentroids = centroids->k;
@@ -46,7 +46,7 @@ void groupCentroids(CentroidData_t *centroids, int t)
 /*
 
 */
-void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
+static void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
                           int numGroups)
 {
     // operation variables
@@ -110,20 +110,20 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
   // run_seq_lloyd(pointList, centrList, 1);
 
   // printf("Centroids:\n");
-  for (int i = 0; i < centrList->k; i++)
-  {
-    for (int j = 0; j < centrList->dim; j++)
-    {
-      printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
-    }
-    printf("\n");
-  }
-  printf("\n");
+  // for (int i = 0; i < centrList->k; i++)
+  // {
+  //   for (int j = 0; j < centrList->dim; j++)
+  //   {
+  //     printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+  //   }
+  //   printf("\n");
+  // }
+  // printf("\n");
 
   // now run Yinyang iterations
   for (int iterationCntr = 1; iterationCntr < maxIter; iterationCntr++)
   {
-    printf("Iteration: %d\n", iterationCntr);
+    // printf("Iteration: %d\n", iterationCntr);
 
     // prime for next iteration
     primeCentroid(centrList);
@@ -226,15 +226,15 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
     }
 
     // printf("Centroids:\n");
-    for (int i = 0; i < centrList->k; i++)
-    {
-      for (int j = 0; j < centrList->dim; j++)
-      {
-        printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
-      }
-      printf("Group: %d\n", centrList->groupID[i]);
-    }
-    printf("\n");
+    // for (int i = 0; i < centrList->k; i++)
+    // {
+    //   for (int j = 0; j < centrList->dim; j++)
+    //   {
+    //     printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+    //   }
+    //   printf("\n");
+    // }
+    // printf("\n");
 
 
 
@@ -243,7 +243,7 @@ void run_seq_yin(PointData_t *pointList, CentroidData_t *centrList,
     // check for convergence
     if (checkConvergence(centrList))
     {
-      printf("Iterations: %d\n", iterationCntr+1);
+      // printf("Iterations: %d\n", iterationCntr+1);
       break;
     }
   }

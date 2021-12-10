@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   }
   else if (algo_select == MPI_YINYANG)
   {
-    run_mpi_yin(dataPoints, centroids, maxIterations, mpi_numProc, mpi_rank);
+    run_mpi_yin(&points, &centroids, num_cluster_groups, maxIterations, mpi_numProc, mpi_rank);
   }
   else
   {

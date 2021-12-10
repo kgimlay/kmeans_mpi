@@ -93,5 +93,9 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
                       int rank_non_0_sublist_size);
 void updateCentroids_yinyang(CentroidData_t *centrList, PointData_t *pointList,
                             double *maxDrift, int numGroups);
+void updateCentroids_yinyangMPI(CentroidData_t *centrList, PointData_t *pointList,
+                                double *maxDrift, int numGroups,  int mpi_rank,
+                                int mpi_numProc, int rank_0_sublist_size,
+                                int rank_non_0_sublist_size);
 
 #endif

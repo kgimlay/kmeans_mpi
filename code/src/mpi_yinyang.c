@@ -2,146 +2,281 @@
 
 #include "../inc/mpi_yinyang.h"
 
-void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList,
-                  int maxIter, int mpi_numProc, int mpi_rank)
+
+/*
+
+*/
+static void groupCentroids(CentroidData_t *centroids, int t)
 {
-  printf("MPI Yinyang not implemented yet!\n");
+  // operation variables
+  int numCentroids = centroids->k;
+  int dim = centroids->dim;
+  PointData_t centPoints;
+  CentroidData_t centCentroids;
+
+  // store centroid data into points
+  makePoints(&centPoints, numCentroids, dim, t);
+  for (int i = 0; i < numCentroids; i++)
+  {
+    for (int j = 0; j < dim; j++)
+    {
+      centPoints.coords[i * dim + j] = centroids->coords[i * dim + j];
+    }
+  }
+
+  // make centroids (groups)
+  makeCentroids(&centCentroids, t, dim);
+  startCentroids(&centCentroids, &centPoints);
+
+  // run kmeans to group centroids for 10 iterations (max)
+  run_seq_lloyd(&centPoints, &centCentroids, 10);
+
+  // get centroid assignments as group assignments
+  for (int i = 0; i < numCentroids; i++)
+  {
+    centroids->groupID[i] = centPoints.centroids[i];
+  }
+
+  // free temporary data
+  freePoints(centPoints);
+  freeCentroids(centCentroids);
 }
 
 
+/*
+
+*/
+static void run_yinyang_firstItr(PointData_t *pointList, CentroidData_t *centroidList,
+                          int numGroups)
+{
+    // operation variables
+    double tempDist;
+
+    // loop over each point
+    for (int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+    {
+      pointList->ub[pointIdx] = INFINITY;
+
+      // loop over each centroid for distance calculation
+      for (int centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
+      {
+        // calculate distance to each centroid
+        tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centroidList, centrIdx);
+
+        // store current minimum
+        if (tempDist < pointList->ub[pointIdx])
+        {
+          if (pointList->ub[pointIdx] != INFINITY)
+          {
+            pointList->lb[pointIdx * numGroups + centroidList->groupID[pointList->centroids[pointIdx]]] = pointList->ub[pointIdx];
+          }
+          pointList->centroids[pointIdx] = centrIdx;
+          pointList->ub[pointIdx] = tempDist;
+        }
+        else if (tempDist < pointList->lb[pointIdx * numGroups + centroidList->groupID[centrIdx]])
+        {
+          pointList->lb[pointIdx * numGroups + centroidList->groupID[centrIdx]] = tempDist;
+        }
+      } /* end for */
+
+    } /* end for */
+}
 
 
-// double startFullOnCPU(PointInfo *pointInfo,
-//                     CentInfo *centInfo,
-//                     DTYPE *pointData,
-//                     DTYPE *centData,
-//                     const int numPnt,
-//                     const int numCent,
-//                     const int numGrp,
-//                     const int numDim,
-//                     const int numThread,
-//                     const int maxIter,
-//                     unsigned int *ranIter)
-// {
-//   double startTime = omp_get_wtime();
-//
-//   // index variables
-//   unsigned int pntIndex, grpIndex;
-//   unsigned int index = 1;
-//   unsigned int conFlag = 0;
-//
-//   // array to contain the maximum drift of each group of centroids
-//   // note: shared amongst all points
-//   DTYPE *maxDriftArr = (DTYPE *)malloc(sizeof(DTYPE) * numGrp);
-//
-//   // array of all the points lower bounds
-//   DTYPE *pointLwrs = (DTYPE *)malloc(sizeof(DTYPE) * numPnt * numGrp);
-//
-//   // initiatilize to INFINITY
-//   for(grpIndex = 0; grpIndex < numPnt * numGrp; grpIndex++)
-//   {
-//     pointLwrs[grpIndex] = INFINITY;
-//   }
-//
-//   // array to contain integer flags which mark which groups need to be checked
-//   // for a potential new centroid
-//   // note: unique to each point
-//   unsigned int *groupLclArr = (unsigned int *)malloc(sizeof(unsigned int)*numPnt*numGrp);
-//
-//   omp_set_num_threads(numThread);
-//
-//   // the minimum of all the lower bounds for a single point
-//   DTYPE tmpGlobLwr = INFINITY;
-//
-//   // cluster the centroids into NGROUPCPU groups
-//   groupCent(centInfo, centData, numCent, numGrp, numDim);
-//
-//   // run one iteration of standard kmeans for initial centroid assignments
-//   initPoints(pointInfo, centInfo, pointData, pointLwrs,
-//              centData, numPnt, numCent, numGrp, numDim, numThread);
-//
-//   // master loop
-//   while(!conFlag && index < maxIter)
-//   {
-//     // clear drift array each new iteration
-//     for(grpIndex = 0; grpIndex < numGrp; grpIndex++)
-//     {
-//       maxDriftArr[grpIndex] = 0.0;
-//     }
-//
-//     // update centers via optimised update method
-//     updateCentroids(pointInfo, centInfo, pointData, centData,
-//                     maxDriftArr, numPnt, numCent, numGrp, numDim, numThread);
-//
-//     // filtering done in parallel
-//     #pragma omp parallel \
-//     private(pntIndex, grpIndex, tmpGlobLwr) \
-//     shared(pointInfo, centInfo, pointData, centData, maxDriftArr, groupLclArr)
-//     {
-//       #pragma omp for schedule(static)
-//       for(pntIndex = 0; pntIndex < numPnt; pntIndex++)
-//       {
-//         // reset old centroid before possibly finding a new one
-//         pointInfo[pntIndex].oldCentroid = pointInfo[pntIndex].centroidIndex;
-//
-//         tmpGlobLwr = INFINITY;
-//
-//         // update upper bound
-//           // ub = ub + centroid's drift
-//         pointInfo[pntIndex].uprBound +=
-//           centInfo[pointInfo[pntIndex].centroidIndex].drift;
-//
-//         // update group lower bounds
-//           // lb = lb - maxGroupDrift
-//         for(grpIndex = 0; grpIndex < numGrp; grpIndex++)
-//         {
-//           pointLwrs[(pntIndex * numGrp) + grpIndex] -= maxDriftArr[grpIndex];
-//
-//           if(pointLwrs[(pntIndex * numGrp) + grpIndex] < tmpGlobLwr)
-//           {
-//             // minimum lower bound
-//             tmpGlobLwr = pointLwrs[(pntIndex * numGrp) + grpIndex];
-//           }
-//         }
-//
-//         // global filtering
-//         // if global lowerbound >= upper bound
-//         if(tmpGlobLwr < pointInfo[pntIndex].uprBound)
-//         {
-//           // tighten upperbound ub = d(x, b(x))
-//           pointInfo[pntIndex].uprBound =
-//             calcDisCPU(&pointData[pntIndex * numDim],
-//                        &centData[pointInfo[pntIndex].centroidIndex * numDim],
-//                        numDim);
-//
-//           // check condition again
-//           if(tmpGlobLwr < pointInfo[pntIndex].uprBound)
-//           {
-//             // group filtering
-//             for(grpIndex = 0; grpIndex < numGrp; grpIndex++)
-//             {
-//                 // mark groups that need to be checked
-//               if(pointLwrs[(pntIndex * numGrp) + grpIndex] < pointInfo[pntIndex].uprBound)
-//               groupLclArr[(pntIndex * numGrp) + grpIndex] = 1;
-//               else
-//               groupLclArr[(pntIndex * numGrp) + grpIndex] = 0;
-//             }
-//             // pass group array and point to go execute distance calculations
-//             pointCalcsFullCPU(&pointInfo[pntIndex], centInfo,
-//                               &pointData[pntIndex*numDim], &pointLwrs[pntIndex*numGrp],
-//                               centData, maxDriftArr, &groupLclArr[pntIndex*numGrp],
-//                               numPnt, numCent, numGrp, numDim);
-//           }
-//         }
-//       }
-//     }
-//     index++;
-//     conFlag = checkConverge(pointInfo, numPnt);
-//   }
-//   updateCentroids(pointInfo, centInfo, pointData, centData,
-//                   maxDriftArr, numPnt, numCent, numGrp, numDim, numThread);
-//   double endTime = omp_get_wtime();
-//   *ranIter = index;
-//
-//   return endTime - startTime;
-// }
+/*
+
+*/
+void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList,
+                  int numGroups, int maxIter, int mpi_numProc, int mpi_rank)
+{
+  // operation variables
+  int tempDist;
+  double *maxDriftArr = (double *)malloc(sizeof(double) * numGroups);
+  double tmpGlobLwr = INFINITY;
+  bool *groupLclArr = (bool *)malloc(sizeof(bool) * pointList->n * numGroups);
+
+  // initiatilize to INFINITY
+  for(int i = 0; i < pointList->n * numGroups; i++)
+  {
+    pointList->lb[i] = INFINITY;
+  }
+
+  /** begin processes divergence on rank **/
+
+  // select subpoint list
+  int pointSublist_size_0_rank = calcPointSublistSize_rank0(pointList->n, mpi_numProc);
+  int pointSublist_size_non_0_rank = calcPointSublistSize_rankNon0(pointList->n, mpi_numProc);
+  if (mpi_rank != 0)
+  {
+    // select points for process
+    pointList->sublistN = pointSublist_size_non_0_rank;
+    pointList->sublistOffset = pointSublist_size_0_rank + ((mpi_rank - 1) * pointSublist_size_non_0_rank);
+  }
+  else
+  {
+    // select points for process
+    pointList->sublistN = pointSublist_size_0_rank;
+    pointList->sublistOffset = 0;
+  }
+
+  /** end processes divergence on rank **/
+
+  // cluster the centroids into t groups
+  startCentroids(centrList, pointList);
+  groupCentroids(centrList, numGroups);
+
+  // run 1 iteration of Lloyd's for initial cluster assignments
+  run_yinyang_firstItr(pointList, centrList, numGroups);
+  // run_seq_lloyd(pointList, centrList, 1);
+
+  // printf("Centroids:\n");
+  // for (int i = 0; i < centrList->k; i++)
+  // {
+  //   for (int j = 0; j < centrList->dim; j++)
+  //   {
+  //     printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+  //   }
+  //   printf("\n");
+  // }
+  // printf("\n");
+
+  // now run Yinyang iterations
+  for (int iterationCntr = 1; iterationCntr < maxIter; iterationCntr++)
+  {
+    // printf("Iteration: %d\n", iterationCntr);
+
+    // prime for next iteration
+    primeCentroid(centrList);
+    for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+    {
+      maxDriftArr[groupIdx] = 0.0;
+    }
+
+    // update step
+    // updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
+    updateCentroids_yinyangMPI(centrList, pointList, maxDriftArr, numGroups,
+                              mpi_rank, mpi_numProc, pointSublist_size_0_rank,
+                              pointSublist_size_non_0_rank);
+
+    // for(int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+    // {
+    //   printf("Max Drift: %.3f\n", maxDriftArr[groupIdx]);
+    // }
+
+
+    // filtering
+    // done in parallel
+    for(int pointIdx = pointList->sublistOffset;
+      pointIdx < pointList->sublistN + pointList->sublistOffset;
+      pointIdx++)
+    {
+      // reset global lower
+      tmpGlobLwr = INFINITY;
+
+      // update upper bound
+      pointList->ub[pointIdx] += centrList->drift[pointList->centroids[pointIdx]];
+
+      // update lower bound
+      for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+      {
+        pointList->lb[pointIdx * numGroups + groupIdx] -= maxDriftArr[groupIdx];
+        if (pointList->lb[pointIdx * numGroups + groupIdx] < tmpGlobLwr)
+        {
+          tmpGlobLwr = pointList->lb[pointIdx * numGroups + groupIdx];
+        }
+      }
+
+      // global filtering
+      if (tmpGlobLwr < pointList->ub[pointIdx])
+      {
+        // tighten upper bound
+        pointList->ub[pointIdx] = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, pointList->centroids[pointIdx]);
+
+        // check upper bound again
+        if (tmpGlobLwr < pointList->ub[pointIdx])
+        {
+          // group filtering
+          for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+          {
+            if (pointList->lb[pointIdx * numGroups + groupIdx] < pointList->ub[pointIdx])
+            {
+              groupLclArr[pointIdx * numGroups + groupIdx] = true;
+            }
+            else
+            {
+              groupLclArr[pointIdx * numGroups + groupIdx] = false;
+            }
+          }
+
+          // reset lower bounds for point
+          for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+          {
+            // if group is not blocked by group filter
+            if (groupLclArr[pointIdx * numGroups + groupIdx])
+            {
+              pointList->lb[pointIdx * numGroups + groupIdx] = INFINITY;
+            }
+          }
+
+          // iterate over centroids for distance calculations
+          for (int centroidIdx = 0; centroidIdx < centrList->k; centroidIdx++)
+          {
+            // if centroid's group is marked
+            if (groupLclArr[pointIdx * numGroups + centrList->groupID[centroidIdx]])
+            {
+              // skip if centroid assignment did not change
+              if (centroidIdx == pointList->prevCentroids[pointIdx])
+              {
+                continue;
+              }
+
+              // compute distance between point and centroid
+              tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, centroidIdx);
+
+              // if less, reassign centroid
+              if (tempDist < pointList->ub[pointIdx])
+              {
+                pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]] = pointList->ub[pointIdx];
+                pointList->centroids[pointIdx] = centroidIdx;
+                pointList->ub[pointIdx] = tempDist;
+              }
+              // set lower bound if less than current lower bound for group
+              else if (tempDist < pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]])
+              {
+                pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]] = tempDist;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // printf("Centroids:\n");
+    // for (int i = 0; i < centrList->k; i++)
+    // {
+    //   for (int j = 0; j < centrList->dim; j++)
+    //   {
+    //     printf("%.2f, ", centrList->coords[i * centrList->dim + j]);
+    //   }
+    //   printf("\n");
+    // }
+    // printf("\n");
+
+
+
+
+
+    // check for convergence
+    if (checkConvergence(centrList))
+    {
+      // printf("Iterations: %d\n", iterationCntr+1);
+      break;
+    }
+  }
+
+  // recalculate center of clusters
+  // updateCentroids_yinyang(centrList, pointList, maxDriftArr, numGroups);
+  updateCentroids_yinyangMPI(centrList, pointList, maxDriftArr, numGroups,
+                            mpi_rank, mpi_numProc, pointSublist_size_0_rank,
+                            pointSublist_size_non_0_rank);
+}

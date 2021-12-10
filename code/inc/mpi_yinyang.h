@@ -11,9 +11,11 @@
 #include <mpi.h>
 #include "parameters.h"
 #include "data_utils.h"
+#include "seq_lloyd.h"
+#include "mpi_utils.h"
 
 
 // function prototypes
-void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList, 
-                  int maxIter, int mpi_numProc, int mpi_rank);
+void run_mpi_yin(PointData_t *pointList, CentroidData_t *centrList,
+                  int numGroups, int maxIter, int mpi_numProc, int mpi_rank);
 #endif
