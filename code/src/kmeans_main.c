@@ -60,10 +60,10 @@ int main(int argc, char *argv[])
   {
     run_seq_yin(&points, &centroids, num_cluster_groups, maxIterations);
   }
-  // else if (algo_select == MPI_YINYANG)
-  // {
-  //   run_mpi_yin(dataPoints, centroids, maxIterations, mpi_numProc, mpi_rank);
-  // }
+  else if (algo_select == MPI_YINYANG)
+  {
+    run_mpi_yin(dataPoints, centroids, maxIterations, mpi_numProc, mpi_rank);
+  }
   else
   {
     printf("Uh oh! Algo not available! [kmeans_mpi_main.c]\n");
