@@ -28,7 +28,7 @@ void run_mpi_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
   }
 
 
-    printf("Rank %d sublist: %d, offset: %d\n", mpi_rank, pointList->sublistN, pointList->sublistOffset);
+    // printf("Rank %d sublist: %d, offset: %d\n", mpi_rank, pointList->sublistN, pointList->sublistOffset);
 
   /** end processes divergence on rank **/
 
