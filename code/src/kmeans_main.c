@@ -28,6 +28,9 @@ int main(int argc, char *argv[])
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_numProc);
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
+  /* Open MP */
+  omp_set_num_threads(10);
+
   // get command line arguments
   makeSaveOptions(&sOptions);
   if (!parse_commandline(argc, argv, &data_size, &data_dim, &num_clusters,
@@ -56,6 +59,10 @@ int main(int argc, char *argv[])
   {
     run_mpi_lloyd(&points, &centroids, maxIterations, mpi_numProc, mpi_rank);
   }
+  else if (algo_select == MPI_OMP_LLOYD)
+  {
+    run_mpi_omp_lloyd(&points, &centroids, maxIterations, mpi_numProc, mpi_rank);
+  }
   else if (algo_select == SEQ_YINYANG)
   {
     run_seq_yin(&points, &centroids, num_cluster_groups, maxIterations);
@@ -63,6 +70,11 @@ int main(int argc, char *argv[])
   else if (algo_select == MPI_YINYANG)
   {
     run_mpi_yin(&points, &centroids, num_cluster_groups, maxIterations, mpi_numProc, mpi_rank);
+  }
+  else if (algo_select == MPI_OMP_YINYANG)
+  {
+    printf("run_mpi_omp_yin not implemented yet!\n");
+    // run_mpi_omp_yin(&points, &centroids, num_cluster_groups, maxIterations, mpi_numProc, mpi_rank);
   }
   else
   {

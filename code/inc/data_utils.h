@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <mpi.h>
+#include "omp.h"
 #include "parameters.h"
 
 
@@ -85,7 +86,9 @@ double calcSquaredEuclideanDist_yinyang(PointData_t *points, int pointId,
 void primeCentroid(CentroidData_t *centroidList);
 bool checkConvergence(CentroidData_t *centrList);
 void assignCentroids(PointData_t *pointList,
-                                  CentroidData_t *centroidList);
+                      CentroidData_t *centroidList);
+void assignCentroids_omp(PointData_t *pointList,
+                          CentroidData_t *centroidList);
 void updateCentroids(CentroidData_t *centrList, PointData_t *pointList);
 void startCentroids(CentroidData_t *centrList, PointData_t *pointList);
 void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,

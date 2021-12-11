@@ -268,6 +268,50 @@ void assignCentroids(PointData_t *pointList,
 /*
 
 */
+void assignCentroids_omp(PointData_t *pointList,
+                                  CentroidData_t *centroidList)
+{
+  // operation variables
+  double tempMinDist, tempDist;
+  int tempCentr, pointIdx, centrIdx;
+
+  #pragma omp parallel \
+  private(pointIdx, centrIdx, tempDist, tempMinDist, tempCentr)
+  {
+    tempCentr = -1;
+
+    // loop over each point
+    #pragma omp for nowait schedule(static)
+    for(pointIdx = pointList->sublistOffset;
+      pointIdx < pointList->sublistN + pointList->sublistOffset;
+      pointIdx++)
+    {
+      tempMinDist = INFINITY;
+
+      // loop over each centroid for distance calculation
+      for(centrIdx = 0; centrIdx < centroidList->k; centrIdx++)
+      {
+        // calculate distance to each centroid
+        tempDist = calcSquaredEuclideanDist(pointList, pointIdx, centroidList, centrIdx);
+
+        // store current minimum
+        if(tempDist < tempMinDist)
+        {
+          tempCentr = centrIdx;
+          tempMinDist = tempDist;
+        }
+      } /* end for */
+
+      // update cluster membership
+      pointList->centroids[pointIdx] = tempCentr;
+    } /* end for */
+  }
+}
+
+
+/*
+
+*/
 void startCentroids(CentroidData_t *centrList, PointData_t *pointList)
 {
   // first N datapoints

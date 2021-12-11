@@ -12,8 +12,10 @@
 // Defines
 #define SEQ_LLOYD__STR "SEQ_LLOYD"
 #define MPI_LLOYD__STR "MPI_LLOYD"
+#define MPI_OMP_LLOYD__STR "MPI_OMP_LLOYD"
 #define SEQ_YINYANG__STR "SEQ_YINYANG"
 #define MPI_YINYANG__STR "MPI_YINYANG"
+#define MPI_OMP_YINYANG__STR "MPI_OMP_YINYANG"
 
 
 // function prototypes

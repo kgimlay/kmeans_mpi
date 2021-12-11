@@ -19,6 +19,12 @@ bool str_to_algo(char *input, ALGO_CODE *algo)
     *algo = MPI_LLOYD;
   }
 
+  // mpi-omp lloyd algo
+  else if (!strcmp(input, MPI_OMP_LLOYD__STR))
+  {
+    *algo = MPI_OMP_LLOYD;
+  }
+
   // seq yinyang algo
   else if (!strcmp(input, SEQ_YINYANG__STR))
   {
@@ -29,6 +35,12 @@ bool str_to_algo(char *input, ALGO_CODE *algo)
   else if (!strcmp(input, MPI_YINYANG__STR))
   {
     *algo = MPI_YINYANG;
+  }
+
+  // mpi yinyang algo
+  else if (!strcmp(input, MPI_OMP_YINYANG__STR))
+  {
+    *algo = MPI_OMP_YINYANG;
   }
 
   // catch all else
