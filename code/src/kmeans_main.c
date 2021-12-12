@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
   /* Open MP */
-  omp_set_num_threads(10);
+  // omp_set_num_threads(10);
 
   // get command line arguments
   makeSaveOptions(&sOptions);

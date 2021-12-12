@@ -92,7 +92,7 @@ void run_mpi_omp_yin(PointData_t *pointList, CentroidData_t *centrList,
                   int numGroups, int maxIter, int mpi_numProc, int mpi_rank)
 {
   // operation variables
-  int tempDist;
+  int tempDist, pointIdx, groupIdx, centroidIdx;
   double *maxDriftArr = (double *)malloc(sizeof(double) * numGroups);
   double tmpGlobLwr = INFINITY;
   bool *groupLclArr = (bool *)malloc(sizeof(bool) * pointList->n * numGroups);
@@ -178,84 +178,90 @@ void run_mpi_omp_yin(PointData_t *pointList, CentroidData_t *centrList,
 
     // filtering
     // done in parallel
-    for(int pointIdx = pointList->sublistOffset;
-      pointIdx < pointList->sublistN + pointList->sublistOffset;
-      pointIdx++)
+    #pragma omp parallel
     {
-      // reset global lower
-      tmpGlobLwr = INFINITY;
-
-      // update upper bound
-      pointList->ub[pointIdx] += centrList->drift[pointList->centroids[pointIdx]];
-
-      // update lower bound
-      for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+      #pragma omp for schedule(static) \
+      private(pointIdx, tmpGlobLwr, groupIdx, centroidIdx, tempDist)
+      // public(pointList, groupLclArr, centrList, )
+      for(pointIdx = pointList->sublistOffset;
+        pointIdx < pointList->sublistN + pointList->sublistOffset;
+        pointIdx++)
       {
-        pointList->lb[pointIdx * numGroups + groupIdx] -= maxDriftArr[groupIdx];
-        if (pointList->lb[pointIdx * numGroups + groupIdx] < tmpGlobLwr)
+        // reset global lower
+        tmpGlobLwr = INFINITY;
+
+        // update upper bound
+        pointList->ub[pointIdx] += centrList->drift[pointList->centroids[pointIdx]];
+
+        // update lower bound
+        for (groupIdx = 0; groupIdx < numGroups; groupIdx++)
         {
-          tmpGlobLwr = pointList->lb[pointIdx * numGroups + groupIdx];
+          pointList->lb[pointIdx * numGroups + groupIdx] -= maxDriftArr[groupIdx];
+          if (pointList->lb[pointIdx * numGroups + groupIdx] < tmpGlobLwr)
+          {
+            tmpGlobLwr = pointList->lb[pointIdx * numGroups + groupIdx];
+          }
         }
-      }
 
-      // global filtering
-      if (tmpGlobLwr < pointList->ub[pointIdx])
-      {
-        // tighten upper bound
-        pointList->ub[pointIdx] = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, pointList->centroids[pointIdx]);
-
-        // check upper bound again
+        // global filtering
         if (tmpGlobLwr < pointList->ub[pointIdx])
         {
-          // group filtering
-          for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
-          {
-            if (pointList->lb[pointIdx * numGroups + groupIdx] < pointList->ub[pointIdx])
-            {
-              groupLclArr[pointIdx * numGroups + groupIdx] = true;
-            }
-            else
-            {
-              groupLclArr[pointIdx * numGroups + groupIdx] = false;
-            }
-          }
+          // tighten upper bound
+          pointList->ub[pointIdx] = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, pointList->centroids[pointIdx]);
 
-          // reset lower bounds for point
-          for (int groupIdx = 0; groupIdx < numGroups; groupIdx++)
+          // check upper bound again
+          if (tmpGlobLwr < pointList->ub[pointIdx])
           {
-            // if group is not blocked by group filter
-            if (groupLclArr[pointIdx * numGroups + groupIdx])
+            // group filtering
+            for (groupIdx = 0; groupIdx < numGroups; groupIdx++)
             {
-              pointList->lb[pointIdx * numGroups + groupIdx] = INFINITY;
-            }
-          }
-
-          // iterate over centroids for distance calculations
-          for (int centroidIdx = 0; centroidIdx < centrList->k; centroidIdx++)
-          {
-            // if centroid's group is marked
-            if (groupLclArr[pointIdx * numGroups + centrList->groupID[centroidIdx]])
-            {
-              // skip if centroid assignment did not change
-              if (centroidIdx == pointList->prevCentroids[pointIdx])
+              if (pointList->lb[pointIdx * numGroups + groupIdx] < pointList->ub[pointIdx])
               {
-                continue;
+                groupLclArr[pointIdx * numGroups + groupIdx] = true;
               }
-
-              // compute distance between point and centroid
-              tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, centroidIdx);
-
-              // if less, reassign centroid
-              if (tempDist < pointList->ub[pointIdx])
+              else
               {
-                pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]] = pointList->ub[pointIdx];
-                pointList->centroids[pointIdx] = centroidIdx;
-                pointList->ub[pointIdx] = tempDist;
+                groupLclArr[pointIdx * numGroups + groupIdx] = false;
               }
-              // set lower bound if less than current lower bound for group
-              else if (tempDist < pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]])
+            }
+
+            // reset lower bounds for point
+            for (groupIdx = 0; groupIdx < numGroups; groupIdx++)
+            {
+              // if group is not blocked by group filter
+              if (groupLclArr[pointIdx * numGroups + groupIdx])
               {
-                pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]] = tempDist;
+                pointList->lb[pointIdx * numGroups + groupIdx] = INFINITY;
+              }
+            }
+
+            // iterate over centroids for distance calculations
+            for (centroidIdx = 0; centroidIdx < centrList->k; centroidIdx++)
+            {
+              // if centroid's group is marked
+              if (groupLclArr[pointIdx * numGroups + centrList->groupID[centroidIdx]])
+              {
+                // skip if centroid assignment did not change
+                if (centroidIdx == pointList->prevCentroids[pointIdx])
+                {
+                  continue;
+                }
+
+                // compute distance between point and centroid
+                tempDist = calcSquaredEuclideanDist_yinyang(pointList, pointIdx, centrList, centroidIdx);
+
+                // if less, reassign centroid
+                if (tempDist < pointList->ub[pointIdx])
+                {
+                  pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]] = pointList->ub[pointIdx];
+                  pointList->centroids[pointIdx] = centroidIdx;
+                  pointList->ub[pointIdx] = tempDist;
+                }
+                // set lower bound if less than current lower bound for group
+                else if (tempDist < pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]])
+                {
+                  pointList->lb[pointIdx * numGroups + centrList->groupID[pointList->centroids[pointIdx]]] = tempDist;
+                }
               }
             }
           }

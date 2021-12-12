@@ -277,15 +277,18 @@ void assignCentroids_omp(PointData_t *pointList,
 
   #pragma omp parallel \
   private(pointIdx, centrIdx, tempDist, tempMinDist, tempCentr)
+  // public(pointList)
   {
     tempCentr = -1;
 
     // loop over each point
-    #pragma omp for nowait schedule(static)
+    #pragma omp for schedule(dynamic)
     for(pointIdx = pointList->sublistOffset;
       pointIdx < pointList->sublistN + pointList->sublistOffset;
       pointIdx++)
     {
+      // printf("Thread: %d, Point Idx: %d\n", omp_get_thread_num(), pointIdx);
+
       tempMinDist = INFINITY;
 
       // loop over each centroid for distance calculation
@@ -414,6 +417,43 @@ void updateCentroids(CentroidData_t *centrList, PointData_t *pointList)
 /*
 
 */
+void updateCentroids_OMP(CentroidData_t *centrList, PointData_t *pointList)
+{
+  #pragma omp parallel
+  {
+    // loop over each point
+    #pragma omp for nowait schedule(dynamic)
+    for(int pointIdx = 0; pointIdx < pointList->n; pointIdx++)
+    {
+      // for each dimension, sum into centroid's coords
+      for(int dimIdx = 0; dimIdx < pointList->dim; dimIdx++)
+      {
+        centrList->coords[pointList->centroids[pointIdx] * centrList->dim + dimIdx]
+          += pointList->coords[pointIdx * pointList->dim + dimIdx];
+      }
+
+      // update number of points in cluster
+      (centrList->sizes[pointList->centroids[pointIdx]])++;
+    } /* end for */
+  }
+
+
+  // loop over each centroid and average coords
+  for(int centrIdx = 0; centrIdx < centrList->k; centrIdx++)
+  {
+    // average
+    for(int dimIdx = 0; dimIdx < centrList->dim; dimIdx++)
+    {
+      centrList->coords[centrIdx * centrList->dim + dimIdx]
+        /= centrList->sizes[centrIdx];
+    }
+  } /* end for */
+}
+
+
+/*
+
+*/
 void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
                       int mpi_rank, int mpi_numProc, int rank_0_sublist_size,
                       int rank_non_0_sublist_size)
@@ -461,6 +501,74 @@ void updateCentroids_MPI(PointData_t *pointList, CentroidData_t *centrList,
 
     // recalculate center of clusters
     updateCentroids(centrList, pointList);
+
+    // send centroid locations
+    for (int i = 1; i < mpi_numProc; i++)
+    {
+      sendRecieveOffset = (rank_0_sublist_size * pointList->dim)
+          + ((i - 1) * rank_non_0_sublist_size);
+      MPI_Send(centrList->coords,
+        centrList->k * centrList->dim,
+        MPI_DOUBLE,
+        i, 0,
+        MPI_COMM_WORLD);
+    }
+  } /* end if mpi_rank == 0 */
+
+  /** end processes divergence on rank **/
+}
+
+
+/*
+
+*/
+void updateCentroids_MPI_OMP(PointData_t *pointList, CentroidData_t *centrList,
+                      int mpi_rank, int mpi_numProc, int rank_0_sublist_size,
+                      int rank_non_0_sublist_size)
+{
+  /** begin processes divergence on rank **/
+
+  // if not rank 0, send centroid assignments to rank 0, then wait for new centroid
+  // locations
+  if (mpi_rank != 0)
+  {
+    // send centroid assignments to rank 0
+    MPI_Send(pointList->centroids + pointList->sublistOffset,
+      pointList->sublistN,
+      MPI_INTEGER,
+      0, 0,
+      MPI_COMM_WORLD);
+
+    // receive new centroid locations from rank 0
+    MPI_Status status;
+    MPI_Recv(centrList->coords,
+      centrList->k * centrList->dim,
+      MPI_DOUBLE,
+      0, 0,
+      MPI_COMM_WORLD,
+      &status);
+  } /* end if mpi_rank != 0 */
+
+  // if rank 0, recieve weighted sums, calculate new centroid locations,
+  // and send locations back to all other ranks
+  else
+  {
+    // receive centroid assignments
+    MPI_Status status;
+    int sendRecieveOffset;
+    for (int i = 1; i < mpi_numProc; i++)
+    {
+      sendRecieveOffset = rank_0_sublist_size + ((i - 1) * rank_non_0_sublist_size);
+      MPI_Recv(pointList->centroids + sendRecieveOffset,
+        pointList->sublistN,
+        MPI_INTEGER,
+        i, 0,
+        MPI_COMM_WORLD,
+        &status);
+    }
+
+    // recalculate center of clusters
+    updateCentroids_OMP(centrList, pointList);
 
     // send centroid locations
     for (int i = 1; i < mpi_numProc; i++)
