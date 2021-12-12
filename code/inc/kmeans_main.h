@@ -18,7 +18,7 @@
 #include "mpi_omp_lloyd.h"
 #include "seq_yinyang.h"
 #include "mpi_yinyang.h"
-// #include "mpi_omp_yinyang.h"
+#include "mpi_omp_yinyang.h"
 
 
 #endif

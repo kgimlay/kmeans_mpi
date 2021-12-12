@@ -12,3 +12,4 @@ module load openmpi
 cd /home/kgi4/ondemand/data/sys/myjobs/projects/kmeans/
 
 srun ./kmeans_main ./datasets/M.csv 1000000 2 MPI_OMP_LLOYD 15 -v 3 -i 1000
+srun ./kmeans_main ./datasets/M.csv 1000000 2 MPI_OMP_YINYANG 15 -v 3 -i 1000

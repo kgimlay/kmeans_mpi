@@ -73,8 +73,7 @@ int main(int argc, char *argv[])
   }
   else if (algo_select == MPI_OMP_YINYANG)
   {
-    printf("run_mpi_omp_yin not implemented yet!\n");
-    // run_mpi_omp_yin(&points, &centroids, num_cluster_groups, maxIterations, mpi_numProc, mpi_rank);
+    run_mpi_omp_yin(&points, &centroids, num_cluster_groups, maxIterations, mpi_numProc, mpi_rank);
   }
   else
   {
