@@ -37,7 +37,7 @@ void run_seq_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIte
     // check for convergence
     if (checkConvergence(centrList))
     {
-      // printf("Iterations: %d\n", iterationCntr+1);
+      printf("Iterations: %d\n", iterationCntr+1);
       break;
     }
 

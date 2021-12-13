@@ -40,6 +40,13 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  num_cluster_groups = num_clusters / 10;
+  if (num_cluster_groups == 0)
+  {
+    num_cluster_groups = 1;
+  }
+
+
   // command line parsing successful, allocate memory for point and centroid data
   makeCentroids(&centroids, num_clusters, data_dim);
   makePoints(&points, data_size, data_dim, num_cluster_groups);

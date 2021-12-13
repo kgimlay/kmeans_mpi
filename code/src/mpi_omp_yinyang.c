@@ -287,7 +287,7 @@ void run_mpi_omp_yin(PointData_t *pointList, CentroidData_t *centrList,
     // check for convergence
     if (checkConvergence(centrList))
     {
-      // printf("Iterations: %d\n", iterationCntr+1);
+      printf("Iterations: %d\n", iterationCntr+1);
       break;
     }
   }

@@ -9,7 +9,7 @@
 void run_mpi_omp_lloyd(PointData_t *pointList, CentroidData_t *centrList, int maxIter,
                   int mpi_numProc, int mpi_rank)
 {
-  double startTime, endTime;
+  // double startTime, endTime;
 
   /** begin processes divergence on rank **/
 
@@ -65,7 +65,7 @@ void run_mpi_omp_lloyd(PointData_t *pointList, CentroidData_t *centrList, int ma
     {
       if (mpi_rank == 0)
       {
-        // printf("Iterations: %d\n", iterationCntr+1);
+        printf("Iterations: %d\n", iterationCntr+1);
       }
       break;
     }
