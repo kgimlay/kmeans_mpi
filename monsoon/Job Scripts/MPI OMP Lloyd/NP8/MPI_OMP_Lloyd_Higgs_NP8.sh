@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-#SBATCH --job-name=MPI_OMP_lloyd_higgs_np4
-#SBATCH --output=/scratch/kgi4/MPI_OMP_Lloyd/NP4/MPI_OMP_lloyd_higgs_np4.txt
+#SBATCH --job-name=MPI_OMP_lloyd_higgs_np8
+#SBATCH --output=/scratch/kgi4/MPI_OMP_Lloyd/NP8/MPI_OMP_lloyd_higgs_np8.txt
 #SBATCH --chdir=/scratch/kgi4
 #SBATCH --time=1:00:00
-#SBATCH --mem=64000
+#SBATCH --mem=128000
 #SBATCH --cpus-per-task=4
-#SBATCH --ntasks=4
+#SBATCH --ntasks=8
 #SBATCH --mail-type=ALL
 
 DATASET=./datasets/higgs_normalize_0_1.csv

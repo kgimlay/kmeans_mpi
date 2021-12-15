@@ -1,20 +1,20 @@
 #!/bin/bash
 #
-#SBATCH --job-name=MPI_OMP_lloyd_higgs_np4
-#SBATCH --output=/scratch/kgi4/MPI_OMP_Lloyd/NP4/MPI_OMP_lloyd_higgs_np4.txt
+#SBATCH --job-name=mpi_omp_yinyang_msd_np4
+#SBATCH --output=/scratch/kgi4/MPI_OMP_Yinyang/NP4/mpi_omp_yinyang_msd_np4.txt
 #SBATCH --chdir=/scratch/kgi4
 #SBATCH --time=1:00:00
-#SBATCH --mem=64000
+#SBATCH --mem=4000
 #SBATCH --cpus-per-task=4
 #SBATCH --ntasks=4
 #SBATCH --mail-type=ALL
 
-DATASET=./datasets/higgs_normalize_0_1.csv
-N=11000000
-D=28
+DATASET=./datasets/MSD_year_prediction_normalize_0_1.csv
+N=515345
+D=90
 I=10000
 V=1
-ALG0=MPI_OMP_LLOYD
+ALG0=MPI_OMP_YINYANG
 REPEAT=5
 
 module load openmpi
